@@ -13,6 +13,7 @@ nbproject/Package-*.bash
 build/
 nbbuild/
 dist/
+debug/
 nbdist/
 nbactions.xml
 nb-configuration.xml
