@@ -120,13 +120,13 @@ dist/${CND_CONF}/${IMAGE_TYPE}/pic2-16f627a-interrupt.X.${IMAGE_TYPE}.${OUTPUT_S
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
 	${MP_LD} -mcpu=PIC16F627A ${OBJECTFILES_QUOTED_IF_SPACED} \
 	-o dist/${CND_CONF}/${IMAGE_TYPE}/pic2-16f627a-interrupt.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} \
-	 -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -mcallgraph=std -mno-download-hex
+	 -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -Wl,-prst_vec=0,-pint_vec=4 -mcallgraph=std -mno-download-hex
 else
 dist/${CND_CONF}/${IMAGE_TYPE}/pic2-16f627a-interrupt.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
 	${MP_LD} -mcpu=PIC16F627A ${OBJECTFILES_QUOTED_IF_SPACED} \
 	-o dist/${CND_CONF}/${IMAGE_TYPE}/pic2-16f627a-interrupt.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX} \
-	 -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -mcallgraph=std -mno-download-hex
+	 -msummary=+mem,-psect,-class,-hex,-file,-sha1,-sha256,-xml,-xmlfull -Wl,-prst_vec=0,-pint_vec=4 -mcallgraph=std -mno-download-hex
 endif
 
 
