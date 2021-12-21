@@ -18,6 +18,12 @@ limitations under the License.
 #include "bsp/leds.h"
 
 #define LED_BLINK_ALIVE LED_D3
-#define LED_BUTTON_PRESSED LED_D4
+#define LED_DBG_DOWN LED_D9
+#define LED_DBG_PREV LED_D8
+#define LED_DBG_SEL LED_D7
+#define LED_DBG_TRIG LED_D6
 
-#define BUTTON_DEMO BUTTON_S3
+#define BTN_NEXT BUTTON_S3
+#define BTN_TRIG BUTTON_S4
+#define BTN_SEL BUTTON_S5
+#define BTN_PREV BUTTON_S6
