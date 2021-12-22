@@ -45,23 +45,25 @@ static volatile bool allowScreenUpdate = true;
 
 #define MEMCMP_VALUES_IDENTICAL 0
 
-#define VERSION   "222"
-#define MENU_SIZE 5
+#define VERSION           "123"
+#define MENU_SIZE             5
 #define MENU_TIME     100000000
 #define DEBOUNCE_TIME      2000
+#define WAVEFORM_SIZE       512
 
-const char *g_menu0[] =
-    {"M1", "M2", "M3", NULL, NULL,  NULL,  NULL,  NULL,  NULL};
-
-const char *g_menu1[][9] = {
+const char *G_menu[][9] = {
+    {"M1",  "M2",  "M3",  NULL,  NULL,  NULL,  NULL,  NULL,  NULL},
     {"T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", NULL},
     {"T21", "T22", "T23", "T24", NULL,  NULL,  NULL,  NULL,  NULL},
     {"T31", "T32", NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL},
     {NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL}
 };
 
-uint8_t g_mode0 = 0;
-uint8_t g_mode1 = 0;
+uint8_t G_menuSel = 0;
+uint8_t G_mode0 = 0;
+uint8_t G_mode1 = 0;
+
+uint16_t G_waveformTable[WAVEFORM_SIZE];
 
 enum button_t {NONE=0, NEXT=1, PREV=2, SEL=4, TRIG=8};
 
@@ -127,12 +129,13 @@ static uint8_t len(const char *arr[])
     return i;
 }
 
-static uint8_t pollButtons(void)
+static uint8_t debounceButtons(void)
 {
     uint8_t button = 0;
     uint32_t cnt = 0;
     while (cnt < DEBOUNCE_TIME)
     {
+        cnt++;
         bool button_trig = BUTTON_IsPressed(BTN_TRIG);
         bool button_next = BUTTON_IsPressed(BTN_NEXT);
         bool button_prev = BUTTON_IsPressed(BTN_PREV);
@@ -141,8 +144,9 @@ static uint8_t pollButtons(void)
                     button_sel  ? SEL  :
                     button_next ? NEXT :
                     button_prev ? PREV : NONE;
-        
-        cnt = (button == NONE) ? 0 : cnt + 1;
+        if (button == NONE) {
+            return NONE;
+        }
     }
     return button;
 }
@@ -165,55 +169,105 @@ static void waitIdle(void)
 }
 
 
-static void showMenu(const char *menu[], uint8_t sel, bool isActive)
+static void updateDisplay(const char *menu[], uint8_t sel, uint8_t displayFormat, uint8_t cnt)
 {
-    printf("\f%s %s\r\n", VERSION, menu[sel]);
-    if (isActive) {
-        printf("ACTIVE\r\n");
-    } else {
-        printf("StAnDbY\r\n");
+    char str[80];
+    
+    uint16_t adcResult = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER ) + 1;
+    double   voltage = (double)adcResult*18.0/1024;
+    
+    switch (displayFormat)
+    {
+    case 0:
+        sprintf(str, "\f%2.2fV %s\r\n", voltage, menu[sel]);
+        break;
+    case 1:
+        sprintf(str, "\f%2.2fV %s %s\r\n", voltage, G_menu[0][G_mode0], menu[sel]);
+        break;
+    case 2:
+        sprintf(str, "\f%2.2fV %s %s\r\n", voltage, G_menu[0][G_mode0], G_menu[G_mode0+1][G_mode1]);
+        break;
+    default:
+        break;
     }
+
+    bool isActive = BUTTON_IsPressed(BTN_TRIG);
+    if (isActive) {
+        strcat(str, "ACTIVE ");
+        int i;
+        for (i=0; i<cnt; i++)
+        {
+            strcat(str, "*");
+        }
+        strcat(str, "\r\n");
+    } else {
+        strcat(str, "standby\r\n");
+    }
+    printf(str);
 }
 
-static uint8_t navMenu(const char *menu[], uint8_t sel)
+static uint8_t navMenu(const char *menu[], uint8_t sel, uint8_t displayFormat)
 {
     uint8_t menuLen = len(menu);
     if (sel > menuLen-1) {
         sel = 0;
     }
 
-    bool isActive = BUTTON_IsPressed(BTN_TRIG);
-    bool done = isActive;
+    updateDisplay(menu, sel, displayFormat, 0);
+    bool done = BUTTON_IsPressed(BTN_TRIG);
 
-    showMenu(menu, sel, isActive);
-    while (!done) {
+    while (!done)
+    {
         waitIdle();
-        uint8_t button = pollButtons();
-        dbg_button_led();
-        if (button == NEXT) {
-            sel = (sel >= menuLen-1) ? 0 : sel + 1;
-        } else if (button == PREV) {
-            sel = (sel == 0) ? menuLen - 1 : sel - 1;
+        uint8_t button = NONE;
+        while (button == NONE)
+        {
+            spin(200000);
+            updateDisplay(menu, sel, displayFormat, 0);
+            button = debounceButtons();
         }
-        isActive = (button == TRIG);
-        showMenu(menu, sel, isActive);
+        dbg_button_led();
+        switch (button)
+        {
+        case NEXT:
+            sel = (sel >= menuLen-1) ? 0 : sel + 1;
+            break;
+        case PREV:
+            sel = (sel == 0) ? menuLen - 1 : sel - 1;
+            break;
+        default:
+            break;
+        }
+
+        updateDisplay(menu, sel, displayFormat, 0);
         done = (button == SEL) || (button == TRIG);    
     } // while
     return sel;
 } // navMenu
 
 
-static void xmitWaveform(uint8_t mode0, uint8_t mode1)
+static void loadWaveform(uint8_t mode0, uint8_t mode1, uint16_t table[])
 {
-    bool button_trig = BUTTON_IsPressed(BTN_TRIG);
-    uint32_t cnt = 0;
-    while (button_trig)
+    static uint8_t mode0_prev = 255;
+    static uint8_t mode1_prev = 255;
+    
+    bool waveformChanged = (mode0 != mode0_prev) || (mode1 != mode1_prev);
+    
+    if (waveformChanged)
     {
-        button_trig = BUTTON_IsPressed(BTN_TRIG);
-        spin(200000);
-        cnt++;
-        printf("\fXMIT %d", (int)cnt);
+        mode0_prev = mode0;
+        mode1_prev = mode1;
+        // Copy FLASH to MEM
     }
+}
+
+static void xmitWaveform(uint16_t table[])
+{
+    static uint8_t cnt = 0;
+    cnt++;
+    cnt = cnt & 0x07;
+    spin(200000);
+    updateDisplay(NULL, 0, 2, cnt);
 }
 
 
@@ -228,8 +282,6 @@ int main ( void )
     uint16_t adcResult;
     double   adcResultDouble;
     uint16_t lastAdcResult = 0xFFFF;
-    
-
     
     /* Call the System Initialize routine*/
     SYS_Initialize ( );
@@ -267,20 +319,15 @@ int main ( void )
     
     /* Clear the screen */
     printf( "\f" );
-    
-    uint8_t mode0 = 0;
-    uint8_t mode1 = 0;
     while ( 1 )
     {
-        while (!BUTTON_IsPressed(BTN_TRIG))
+        G_mode1 = navMenu(G_menu[G_mode0+1], G_mode1, 1);
+        G_mode0 = navMenu(G_menu[0], G_mode0, 0);
+        loadWaveform(G_mode0, G_mode1, G_waveformTable);
+        while (BUTTON_IsPressed(BTN_TRIG))
         {
-            printf("beforexxx\r\n");
-            mode0 = navMenu(g_menu0, mode0);
-            printf("middlexxx\r\n");
-            mode1 = navMenu(g_menu1[mode0], mode1);
-            printf("xmitxxx\r\n");
+            xmitWaveform(G_waveformTable);
         }
-        xmitWaveform(mode0, mode1);
     }
     
         
