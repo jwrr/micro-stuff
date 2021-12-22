@@ -63,6 +63,8 @@ limitations under the License.
  ********************************************************************/
 bool BUTTON_IsPressed ( BUTTON button )
 {
+    uint8_t dbg_porta = 0x55;
+    uint8_t dbg_ra7   = 0x44;
     switch(button)
     {
         case BUTTON_S3:
@@ -72,6 +74,8 @@ bool BUTTON_IsPressed ( BUTTON button )
             return ( (S6_PORT == BUTTON_PRESSED) ? true : false);
 
         case BUTTON_S5:
+            dbg_porta = PORTA;  // FIXME
+            dbg_ra7 = PORTAbits.RA7;
             return ( ( S5_PORT == BUTTON_PRESSED ) ? true : false ) ;
 
         case BUTTON_S4:

@@ -45,14 +45,178 @@ static volatile bool allowScreenUpdate = true;
 
 #define MEMCMP_VALUES_IDENTICAL 0
 
+#define VERSION   "222"
 #define MENU_SIZE 5
-#define MENU_B2B_TIME  200000
+#define MENU_TIME     100000000
+#define DEBOUNCE_TIME      2000
+
+const char *g_menu0[] =
+    {"M1", "M2", "M3", NULL, NULL,  NULL,  NULL,  NULL,  NULL};
+
+const char *g_menu1[][9] = {
+    {"T11", "T12", "T13", "T14", "T15", "T16", "T17", "T18", NULL},
+    {"T21", "T22", "T23", "T24", NULL,  NULL,  NULL,  NULL,  NULL},
+    {"T31", "T32", NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL},
+    {NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL,  NULL}
+};
+
+uint8_t g_mode0 = 0;
+uint8_t g_mode1 = 0;
 
 enum button_t {NONE=0, NEXT=1, PREV=2, SEL=4, TRIG=8};
 
-static uint8_t updateMenu(void);
-static void xmitStim(uint8_t sel);
-static void dbg_button_led(void);
+
+static void dbg_button_led(void)
+{
+    /* To determine how the LED and Buttons are mapped to the actual board
+    * features, please see io_mapping.h. */
+    
+    if(toggleBlinkAlive == true)
+    {
+        LED_Toggle( LED_BLINK_ALIVE );
+        toggleBlinkAlive = false;
+    }
+    
+    if(BUTTON_IsPressed( BTN_NEXT ) == true)
+    {
+        LED_On( LED_DBG_NEXT );
+    }
+    else
+    {
+        LED_Off( LED_DBG_NEXT );
+    }
+    
+    if(BUTTON_IsPressed( BTN_TRIG ) == true)
+    {
+        LED_On( LED_DBG_TRIG );
+    }
+    else
+    {
+        LED_Off( LED_DBG_TRIG );
+    }
+        
+    if(BUTTON_IsPressed( BTN_SEL ) == true)
+    {
+        LED_On( LED_DBG_SEL );
+    }
+    else
+    {
+        LED_Off( LED_DBG_SEL );
+    }
+    
+    if(BUTTON_IsPressed( BTN_PREV ) == true)
+    {
+        LED_On( LED_DBG_PREV );
+    }
+    else
+    {
+        LED_Off( LED_DBG_PREV );
+    } 
+} // dbg_button_led
+
+static void spin(uint32_t cnt)
+{
+    uint32_t i;
+    for (i=0; i<cnt; i++);
+}
+
+static uint8_t len(const char *arr[])
+{
+    uint8_t i = 0;
+    for (i=0; arr[i]!=NULL; i++);
+    return i;
+}
+
+static uint8_t pollButtons(void)
+{
+    uint8_t button = 0;
+    uint32_t cnt = 0;
+    while (cnt < DEBOUNCE_TIME)
+    {
+        bool button_trig = BUTTON_IsPressed(BTN_TRIG);
+        bool button_next = BUTTON_IsPressed(BTN_NEXT);
+        bool button_prev = BUTTON_IsPressed(BTN_PREV);
+        bool button_sel  = BUTTON_IsPressed(BTN_SEL);
+        button =    button_trig ? TRIG :
+                    button_sel  ? SEL  :
+                    button_next ? NEXT :
+                    button_prev ? PREV : NONE;
+        
+        cnt = (button == NONE) ? 0 : cnt + 1;
+    }
+    return button;
+}
+
+static void waitIdle(void)
+{
+    bool button_next = false;
+    bool button_prev = false;
+    bool button_sel  = false;
+    bool isPressed = true;
+    uint8_t all = 0;
+    while (isPressed)
+    {
+        button_prev = BUTTON_IsPressed(BTN_PREV);
+        button_sel  = BUTTON_IsPressed(BTN_SEL);
+        button_next = BUTTON_IsPressed(BTN_NEXT);
+        all = button_prev*4 + button_sel*2 + button_next;
+        isPressed = button_prev | button_sel | button_next;
+    }
+}
+
+
+static void showMenu(const char *menu[], uint8_t sel, bool isActive)
+{
+    printf("\f%s %s\r\n", VERSION, menu[sel]);
+    if (isActive) {
+        printf("ACTIVE\r\n");
+    } else {
+        printf("StAnDbY\r\n");
+    }
+}
+
+static uint8_t navMenu(const char *menu[], uint8_t sel)
+{
+    uint8_t menuLen = len(menu);
+    if (sel > menuLen-1) {
+        sel = 0;
+    }
+
+    bool isActive = BUTTON_IsPressed(BTN_TRIG);
+    bool done = isActive;
+
+    showMenu(menu, sel, isActive);
+    while (!done) {
+        waitIdle();
+        uint8_t button = pollButtons();
+        dbg_button_led();
+        if (button == NEXT) {
+            sel = (sel >= menuLen-1) ? 0 : sel + 1;
+        } else if (button == PREV) {
+            sel = (sel == 0) ? menuLen - 1 : sel - 1;
+        }
+        isActive = (button == TRIG);
+        showMenu(menu, sel, isActive);
+        done = (button == SEL) || (button == TRIG);    
+    } // while
+    return sel;
+} // navMenu
+
+
+static void xmitWaveform(uint8_t mode0, uint8_t mode1)
+{
+    bool button_trig = BUTTON_IsPressed(BTN_TRIG);
+    uint32_t cnt = 0;
+    while (button_trig)
+    {
+        button_trig = BUTTON_IsPressed(BTN_TRIG);
+        spin(200000);
+        cnt++;
+        printf("\fXMIT %d", (int)cnt);
+    }
+}
+
+
 
 // *****************************************************************************
 // *****************************************************************************
@@ -64,7 +228,8 @@ int main ( void )
     uint16_t adcResult;
     double   adcResultDouble;
     uint16_t lastAdcResult = 0xFFFF;
-    uint8_t  sel = 0;
+    
+
     
     /* Call the System Initialize routine*/
     SYS_Initialize ( );
@@ -72,7 +237,7 @@ int main ( void )
     /* To determine how the LED and Buttons are mapped to the actual board
      * features, please see io_mapping.h. */
     LED_Enable ( LED_BLINK_ALIVE );
-    LED_Enable ( LED_DBG_DOWN );
+    LED_Enable ( LED_DBG_NEXT );
     LED_Enable ( LED_DBG_TRIG );
     LED_Enable ( LED_DBG_SEL );
     LED_Enable ( LED_DBG_PREV );
@@ -101,14 +266,23 @@ int main ( void )
     ADC_ChannelEnable ( ADC_CHANNEL_POTENTIOMETER );
     
     /* Clear the screen */
-    printf( "\f" );   
+    printf( "\f" );
     
+    uint8_t mode0 = 0;
+    uint8_t mode1 = 0;
     while ( 1 )
     {
-        
-        sel = updateMenu();
-        xmitStim(sel);
+        while (!BUTTON_IsPressed(BTN_TRIG))
+        {
+            printf("beforexxx\r\n");
+            mode0 = navMenu(g_menu0, mode0);
+            printf("middlexxx\r\n");
+            mode1 = navMenu(g_menu1[mode0], mode1);
+            printf("xmitxxx\r\n");
+        }
+        xmitWaveform(mode0, mode1);
     }
+    
         
 //        adcResult = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER );
 //        adcResultDouble = (double)adcResult*3.3/1024;
@@ -153,128 +327,3 @@ static void ScreenUpdateEventHandler(void)
 {
     allowScreenUpdate = true;
 }
-
-
-
-static inline uint8_t getButton(void)
-{
-    uint8_t button = 0; 
-    button =    BUTTON_IsPressed(BTN_NEXT) ? 1 :
-                BUTTON_IsPressed(BTN_PREV) ? 2 :
-                BUTTON_IsPressed(BTN_SEL)  ? 3 :
-                BUTTON_IsPressed(BTN_TRIG) ? 4 : 0;
-    return button;
-}
-
-static void updateDisplay(uint8_t sel)
-{
-    dbg_button_led();
-    printf("\f");
-    printf("%2.1fV ",(double)16.7);
-    if (sel!=4 && getButton()==TRIG)
-    {
-        printf("ACTIVE ");
-    }
-    else
-    {
-        printf("STANDBY");
-    }
-    printf(" %d\r\n", sel);
-    printf("IR/UV HF/R/MW\r\n");
-}
-
-static uint8_t updateMenu(void){
-    static uint8_t sel = 0;
-    uint8_t button = getButton();
-    bool selectionDone = false;
-    updateDisplay(sel);
-    while(!selectionDone)
-    {
-        // Wait until next or prev button is pressed
-        while (button == NONE)
-        {
-            button = getButton();
-        }
-
-        // Process selection
-        switch (button) {
-        case NEXT :
-            sel = (sel==MENU_SIZE) ? 0 : sel+1;
-            break;
-        case PREV :
-            sel = (sel==0) ? MENU_SIZE : sel-1;
-            break;
-        default :
-            break;
-        }
-        updateDisplay(sel);
-        
-        // Wait until next or prev button is released
-        uint32_t cnt = 0;
-        while ((button == NEXT) || (button == PREV))
-        {
-            cnt++;
-            if (cnt >= MENU_B2B_TIME)
-            {
-                break;
-            }
-            button = getButton();
-        }
-        selectionDone = (button == LED_DBG_TRIG) && sel!=0;
-    }
-    return sel;
-} // updateMenu
-
-
-static void xmitStim(uint8_t sel)
-{
-    updateDisplay(sel);
-}
-
-static void dbg_button_led(void)
-{
-    /* To determine how the LED and Buttons are mapped to the actual board
-    * features, please see io_mapping.h. */
-    
-    if(toggleBlinkAlive == true)
-    {
-        LED_Toggle( LED_BLINK_ALIVE );
-        toggleBlinkAlive = false;
-    }
-    
-    if(BUTTON_IsPressed( BTN_NEXT ) == true)
-    {
-        LED_On( LED_DBG_DOWN );
-    }
-    else
-    {
-        LED_Off( LED_DBG_DOWN );
-    }
-    
-    if(BUTTON_IsPressed( BTN_TRIG ) == true)
-    {
-        LED_On( LED_DBG_TRIG );
-    }
-    else
-    {
-        LED_Off( LED_DBG_TRIG );
-    }
-        
-    if(BUTTON_IsPressed( BTN_SEL ) == true)
-    {
-        LED_On( LED_DBG_SEL );
-    }
-    else
-    {
-        LED_Off( LED_DBG_SEL );
-    }
-    
-    if(BUTTON_IsPressed( BTN_PREV ) == true)
-    {
-        LED_On( LED_DBG_PREV );
-    }
-    else
-    {
-        LED_Off( LED_DBG_PREV );
-    } 
-} // dbg_button_led
