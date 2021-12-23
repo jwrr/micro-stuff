@@ -45,11 +45,11 @@ static volatile bool allowScreenUpdate = true;
 
 #define MEMCMP_VALUES_IDENTICAL 0
 
-#define VERSION           "123"
-#define MENU_SIZE             5
-#define MENU_TIME     100000000
-#define DEBOUNCE_TIME      2000
-#define WAVEFORM_SIZE       512
+#define VERSION        "123"
+#define MENU_SIZE          5
+#define MENU_TIME     200000
+#define DEBOUNCE_TIME   2000
+#define WAVEFORM_SIZE    512
 
 const char *G_menu[][9] = {
     {"M1",  "M2",  "M3",  NULL,  NULL,  NULL,  NULL,  NULL,  NULL},
@@ -153,39 +153,41 @@ static uint8_t debounceButtons(void)
 
 static void waitIdle(void)
 {
-    bool button_next = false;
-    bool button_prev = false;
-    bool button_sel  = false;
+    bool next = false;
+    bool prev = false;
+    bool sel  = false;
     bool isPressed = true;
-    uint8_t all = 0;
     while (isPressed)
     {
-        button_prev = BUTTON_IsPressed(BTN_PREV);
-        button_sel  = BUTTON_IsPressed(BTN_SEL);
-        button_next = BUTTON_IsPressed(BTN_NEXT);
-        all = button_prev*4 + button_sel*2 + button_next;
-        isPressed = button_prev | button_sel | button_next;
+        prev = BUTTON_IsPressed(BTN_PREV);
+        sel  = BUTTON_IsPressed(BTN_SEL);
+        next = BUTTON_IsPressed(BTN_NEXT);
+        isPressed = prev | sel | next;
     }
 }
 
-
-static void updateDisplay(const char *menu[], uint8_t sel, uint8_t displayFormat, uint8_t cnt)
+static double checkBattery()
 {
-    char str[80];
-    
     uint16_t adcResult = ADC_Read10bit( ADC_CHANNEL_POTENTIOMETER ) + 1;
-    double   voltage = (double)adcResult*18.0/1024;
-    
-    switch (displayFormat)
+    double   batteryLevel = (double)adcResult*18.0/1024;
+    return batteryLevel;
+}
+
+static void updateDisplay(uint8_t fmt, const char *menu[], uint8_t sel, uint8_t cnt)
+{
+    double   batteryLevel = checkBattery();
+
+    char str[80];
+    switch (fmt)
     {
     case 0:
-        sprintf(str, "\f%2.2fV %s\r\n", voltage, menu[sel]);
+        sprintf(str, "\f%2.2fV %s\r\n", batteryLevel, menu[sel]);
         break;
     case 1:
-        sprintf(str, "\f%2.2fV %s %s\r\n", voltage, G_menu[0][G_mode0], menu[sel]);
+        sprintf(str, "\f%2.2fV %s %s\r\n", batteryLevel, G_menu[0][G_mode0], menu[sel]);
         break;
     case 2:
-        sprintf(str, "\f%2.2fV %s %s\r\n", voltage, G_menu[0][G_mode0], G_menu[G_mode0+1][G_mode1]);
+        sprintf(str, "\f%2.2fV %s %s\r\n", batteryLevel, G_menu[0][G_mode0], G_menu[G_mode0+1][G_mode1]);
         break;
     default:
         break;
@@ -213,7 +215,7 @@ static uint8_t navMenu(const char *menu[], uint8_t sel, uint8_t displayFormat)
         sel = 0;
     }
 
-    updateDisplay(menu, sel, displayFormat, 0);
+    updateDisplay(displayFormat, menu, sel, 0);
     bool done = BUTTON_IsPressed(BTN_TRIG);
 
     while (!done)
@@ -222,8 +224,8 @@ static uint8_t navMenu(const char *menu[], uint8_t sel, uint8_t displayFormat)
         uint8_t button = NONE;
         while (button == NONE)
         {
-            spin(200000);
-            updateDisplay(menu, sel, displayFormat, 0);
+            spin(MENU_TIME);
+            updateDisplay(displayFormat, menu, sel, 0);
             button = debounceButtons();
         }
         dbg_button_led();
@@ -239,7 +241,7 @@ static uint8_t navMenu(const char *menu[], uint8_t sel, uint8_t displayFormat)
             break;
         }
 
-        updateDisplay(menu, sel, displayFormat, 0);
+        updateDisplay(displayFormat, menu, sel, 0);
         done = (button == SEL) || (button == TRIG);    
     } // while
     return sel;
@@ -267,7 +269,8 @@ static void xmitWaveform(uint16_t table[])
     cnt++;
     cnt = cnt & 0x07;
     spin(200000);
-    updateDisplay(NULL, 0, 2, cnt);
+    uint8_t displayFormat = 2;
+    updateDisplay(displayFormat, NULL, 0, cnt);
 }
 
 
@@ -294,10 +297,10 @@ int main ( void )
     LED_Enable ( LED_DBG_SEL );
     LED_Enable ( LED_DBG_PREV );
 
-    BUTTON_Enable ( BTN_NEXT );
     BUTTON_Enable ( BTN_TRIG );
-    BUTTON_Enable ( BTN_SEL );
+    BUTTON_Enable ( BTN_NEXT );
     BUTTON_Enable ( BTN_PREV );
+    BUTTON_Enable ( BTN_SEL );
     
     /* Get a timer event once every 100ms for the blink alive. */
     TIMER_SetConfiguration ( TIMER_CONFIGURATION_1MS );
@@ -321,12 +324,15 @@ int main ( void )
     printf( "\f" );
     while ( 1 )
     {
-        G_mode1 = navMenu(G_menu[G_mode0+1], G_mode1, 1);
-        G_mode0 = navMenu(G_menu[0], G_mode0, 0);
-        loadWaveform(G_mode0, G_mode1, G_waveformTable);
-        while (BUTTON_IsPressed(BTN_TRIG))
+        if (BUTTON_IsPressed(BTN_TRIG))
         {
+            loadWaveform(G_mode0, G_mode1, G_waveformTable);
             xmitWaveform(G_waveformTable);
+        }
+        else
+        {
+            G_mode1 = navMenu(G_menu[G_mode0+1], G_mode1, 1);
+            G_mode0 = navMenu(G_menu[0], G_mode0, 0);
         }
     }
     
