@@ -28,7 +28,8 @@ Then 'Clean and Build Project'
 
 USB Notes:
 ----------
-* Used MCC defaults. When generating it gave a warning about clocks not valid.  This video provide the answer: https://vimeo.com/204554501
+* Used MCC defaults. When generating it gave a warning about clocks not valid.  This video provide the answer: 
+https://vimeo.com/204554501 , with PLL_EN=1 and Prescaler 2:1.
 
 * The code with USB built and loaded, and showed up on COM4. But how do you use the USB?  Download the MLA and use example 
 C:\microchip\mla\v2018_11_26\apps\usb\device\cdc_basic\firmware\exp16_pic24fj1024gb610_pim.x
