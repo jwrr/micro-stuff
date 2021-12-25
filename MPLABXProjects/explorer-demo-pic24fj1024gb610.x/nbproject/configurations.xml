@@ -12,27 +12,6 @@
         <itemPath>bsp/lcd.h</itemPath>
         <itemPath>bsp/adc.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="MCC Generated Files"
-                     displayName="MCC Generated Files"
-                     projectFiles="true">
-        <logicalFolder name="usb" displayName="usb" projectFiles="true">
-          <itemPath>mcc_generated_files/usb/usb_ch9.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device_config.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device_local.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_common.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_hal_pic24f.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_hal.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device_cdc.h</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device.h</itemPath>
-        </logicalFolder>
-        <itemPath>mcc_generated_files/mcc.h</itemPath>
-        <itemPath>mcc_generated_files/system.h</itemPath>
-        <itemPath>mcc_generated_files/clock.h</itemPath>
-        <itemPath>mcc_generated_files/spi1.h</itemPath>
-        <itemPath>mcc_generated_files/pin_manager.h</itemPath>
-        <itemPath>mcc_generated_files/interrupt_manager.h</itemPath>
-      </logicalFolder>
       <itemPath>io_mapping.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -50,23 +29,6 @@
         <itemPath>bsp/leds.c</itemPath>
         <itemPath>bsp/lcd_printf.c</itemPath>
         <itemPath>bsp/timer_1ms.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="MCC Generated Files"
-                     displayName="MCC Generated Files"
-                     projectFiles="true">
-        <logicalFolder name="usb" displayName="usb" projectFiles="true">
-          <itemPath>mcc_generated_files/usb/usb_descriptors.c</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_hal_16bit.c</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device_events.c</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device_cdc.c</itemPath>
-          <itemPath>mcc_generated_files/usb/usb_device.c</itemPath>
-        </logicalFolder>
-        <itemPath>mcc_generated_files/mcc.c</itemPath>
-        <itemPath>mcc_generated_files/spi1.c</itemPath>
-        <itemPath>mcc_generated_files/interrupt_manager.c</itemPath>
-        <itemPath>mcc_generated_files/system.c</itemPath>
-        <itemPath>mcc_generated_files/pin_manager.c</itemPath>
-        <itemPath>mcc_generated_files/clock.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>system.c</itemPath>

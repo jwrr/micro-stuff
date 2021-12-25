@@ -571,7 +571,7 @@ uint8_t getsUSBUSART(uint8_t *buffer, uint8_t len)
     uint8_t length - the number of bytes to be transfered (must be less than 255).
 		
  *****************************************************************************/
-void putUSBUSART(uint8_t *data, uint8_t  length)
+uint8_t putUSBUSART(uint8_t *data, uint8_t  length)
 {
     /*
      * User should have checked that cdc_trf_state is in CDC_TX_READY state
@@ -601,7 +601,13 @@ void putUSBUSART(uint8_t *data, uint8_t  length)
     {
         mUSBUSARTTxRam((uint8_t*)data, length);     // See cdc.h
     }
+    else
+    {
+        return 0;
+    }
+    
     USBUnmaskInterrupts();
+    return length;
 }//end putUSBUSART
 
 /******************************************************************************

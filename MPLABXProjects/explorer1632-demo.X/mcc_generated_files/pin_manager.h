@@ -1,23 +1,25 @@
 /**
-  @Generated PIC24 / dsPIC33 / PIC32MM MCUs Header File
+  PIN MANAGER Generated Driver File
 
   @Company:
     Microchip Technology Inc.
 
   @File Name:
-    mcc.h
+    pin_manager.h
 
   @Summary:
-    This is the mcc.h file generated using PIC24 / dsPIC33 / PIC32MM MCUs
+    This is the generated manager file for the PIC24 / dsPIC33 / PIC32MM MCUs device.  This manager
+    configures the pins direction, initial state, analog setting.
+    The peripheral pin select, PPS, configuration is also handled by this manager.
 
   @Description:
-    This file will be removed in future MCC releases. Use system.h instead.
+    This source file provides implementations for PIN MANAGER.
     Generation Information :
         Product Revision  :  PIC24 / dsPIC33 / PIC32MM MCUs - 1.170.0
         Device            :  PIC24FJ1024GB610
     The generated drivers are tested against the following:
         Compiler          :  XC16 v1.61
-        MPLAB             :  MPLAB X v5.45
+        MPLAB 	          :  MPLAB X v5.45
 */
 
 /*
@@ -42,23 +44,51 @@
     TERMS.
 */
 
-#ifndef MCC_H
-#define	MCC_H
-#include <xc.h>
-#include "system.h"
-#include "clock.h"
-#include "pin_manager.h"
-#include <stdint.h>
-#include <stdbool.h>
-
-#include "usb/usb.h"
-#include "spi1.h"
-#include "interrupt_manager.h"
-#include "traps.h"
-
-#warning "This file will be removed in future MCC releases. Use system.h instead."
-
-#endif	/* MCC_H */
+#ifndef _PIN_MANAGER_H
+#define _PIN_MANAGER_H
 /**
- End of File
+    Section: Includes
 */
+#include <xc.h>
+
+/**
+    Section: Device Pin Macros
+*/
+
+/**
+    Section: Function Prototypes
+*/
+/**
+  @Summary
+    Configures the pin settings of the PIC24FJ1024GB610
+    The peripheral pin select, PPS, configuration is also handled by this manager.
+
+  @Description
+    This is the generated manager file for the PIC24 / dsPIC33 / PIC32MM MCUs device.  This manager
+    configures the pins direction, initial state, analog setting.
+    The peripheral pin select, PPS, configuration is also handled by this manager.
+
+  @Preconditions
+    None.
+
+  @Returns
+    None.
+
+  @Param
+    None.
+
+  @Example
+    <code>
+    void SYSTEM_Initialize(void)
+    {
+        // Other initializers are called from this function
+        PIN_MANAGER_Initialize();
+    }
+    </code>
+
+*/
+void PIN_MANAGER_Initialize (void);
+
+
+
+#endif

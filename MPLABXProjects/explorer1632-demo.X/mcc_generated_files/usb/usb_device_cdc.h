@@ -705,7 +705,7 @@ uint8_t getsUSBUSART(uint8_t *buffer, uint8_t len);
     uint8_t length - the number of bytes to be transfered (must be less than 255).
 		
  *****************************************************************************/
-void putUSBUSART(uint8_t *data, uint8_t Length);
+uint8_t putUSBUSART(uint8_t *data, uint8_t Length);
 
 /******************************************************************************
 	Function:

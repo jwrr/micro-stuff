@@ -78,7 +78,7 @@ void PIN_MANAGER_Initialize (void)
     TRISD = 0xFFFF;
     TRISE = 0x03FF;
     TRISF = 0x31BF;
-    TRISG = 0xF28F;
+    TRISG = 0xF3CF;
 
     /****************************************************************************
      * Setting the Weak Pull Up and Weak Pull Down SFR(s)
@@ -117,17 +117,6 @@ void PIN_MANAGER_Initialize (void)
     ANSC = 0x2010;
     ANSD = 0x00C0;
     ANSE = 0x0210;
-    ANSG = 0x0200;
-    
-    /****************************************************************************
-     * Set the PPS
-     ***************************************************************************/
-    __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
-
-    RPINR20bits.SDI1R = 0x001A;    //RG7->SPI1:SDI1
-    RPOR9bits.RP19R = 0x0007;    //RG8->SPI1:SDO1
-    RPOR10bits.RP21R = 0x0008;    //RG6->SPI1:SCK1OUT
-
-    __builtin_write_OSCCONL(OSCCON | 0x40); // lock PPS
+    ANSG = 0x03C0;
 }
 

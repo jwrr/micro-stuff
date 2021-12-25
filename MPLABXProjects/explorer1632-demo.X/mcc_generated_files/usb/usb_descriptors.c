@@ -1,6 +1,6 @@
 
 
- 
+
 /*******************************************************************************
 Copyright 2016 Microchip Technology Inc. (www.microchip.com)
 
@@ -166,7 +166,7 @@ const USB_DEVICE_DESCRIPTOR device_dsc=
     0x0100,                 // Device release number in BCD format
     0x01,                   // Manufacturer string index
     0x02,                   // Product string index
-    0x00,                   // Device serial number string index
+    0x03,                   // Device serial number string index
     0x01                    // Number of possible configurations
 };
 
@@ -266,9 +266,21 @@ sizeof(sd001),USB_DESCRIPTOR_STRING,
 };
 
 //Product string descriptor
-const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[12];}sd002={
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[17];}sd002={
 sizeof(sd002),USB_DESCRIPTOR_STRING,
-{'P','r','o','d','u','c','t',' ','N','a','m','e'}
+{'e','x','p','l','o','r','e','r','1','6','3','2','-','d','e','m','o'}
+};
+
+//Serial number string descriptor.  If a serial number string is implemented, 
+//it should be unique for every single device coming off the production assembly 
+//line.  Plugging two devices with the same serial number into a computer 
+//simultaneously will cause problems (in extreme cases BSOD).
+//Note: Common OSes put restrictions on the possible values that are allowed.
+//For best OS compatibility, the serial number string should only consist
+//of UNICODE encoded numbers 0 through 9 and capital letters A through F.
+const struct{uint8_t bLength;uint8_t bDscType;uint16_t string[4];}sd003={
+sizeof(sd003),USB_DESCRIPTOR_STRING,
+{'1','2','3','4'}
 };
 
 //Array of configuration descriptors
@@ -282,7 +294,8 @@ const uint8_t *const USB_SD_Ptr[USB_NUM_STRING_DESCRIPTORS]=
 {
     (const uint8_t *const)&sd000,
     (const uint8_t *const)&sd001,
-    (const uint8_t *const)&sd002
+    (const uint8_t *const)&sd002,
+    (const uint8_t *const)&sd003
 };
 
 #if defined(__18CXX)
