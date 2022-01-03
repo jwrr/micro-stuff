@@ -34,3 +34,7 @@ USB Notes:
 C:\microchip\mla\v2018_11_26\apps\usb\device\cdc_basic\firmware\exp16_pic24fj1024gb610_pim.x
 
 * I copied and hacked "app_device_cdc_basic.c" into my main until it compiled. And it amazingly transmitted to PUTTY.
+
+* Error message:
+make[2]: *** No rule to make target 'dist/default/production/explorer1632-demo.X.production.null'.  Stop.
+

@@ -234,14 +234,21 @@ int main(void)
 {
     // initialize the device
     SYSTEM_Initialize();
+    
 
     uint8_t state = 0;
     uint8_t numBytes = 0;
     bool eoln;
     uint8_t line[USB_LINELEN];
     bool usbLocked = true;
-    uint8_t i;
+    uint32_t i;
 
+//    while (1)
+//    {
+//         LATA = LATA & 0x007F;
+//         for (i=0;i<20000;i++);
+//    }
+    
     while (1)
     {
         switch (state)
