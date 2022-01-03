@@ -710,7 +710,10 @@ int main(void)
         spin(100000);
         handleUSB();
         handleTrigger();
-        handleButtons();
+        bool testInProgress = (G_triggerCountDown > 0);
+        if (!testInProgress) {
+            handleButtons();
+        }
         updateDisplay();
     }
     return 1;
