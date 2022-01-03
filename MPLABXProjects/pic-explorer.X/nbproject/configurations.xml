@@ -27,6 +27,7 @@
         <itemPath>mcc_generated_files/adc_module_features.h</itemPath>
         <itemPath>mcc_generated_files/adc1.h</itemPath>
       </logicalFolder>
+      <itemPath>main.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
