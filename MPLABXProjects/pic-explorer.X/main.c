@@ -601,7 +601,6 @@ static void displayHandler()
             if (G_showPixels) {
                 usbWrite("\r\n");
                 pixelizeScreen();
-                G_showPixels = false;
             }
             else
             {
@@ -711,6 +710,33 @@ uint8_t parseLoadLine(const char *line)
     return 1;
 } // parseLoadLine
 
+
+void writeWave()
+{
+    char outStr[1024];
+    char dataStr[10]; 
+
+    G_custom_load_in_progress = false;
+    sprintf(outStr, "\n\rCustom Table. Wave Len=%d,Waveform #%d, data=", G_custom_load_index, NUM_WAVEFORMS-1);
+    uint8_t i = 0;
+    for (i=0; i<G_custom_load_index; i++)
+    {
+        sprintf(dataStr, " %d", G_waveformTable[NUM_WAVEFORMS-1][i]);
+        if (strlen(outStr) > 1000) 
+        {
+            strcat(outStr, "... ");
+            break;
+        }
+        else
+        {
+            strcat(outStr, dataStr);
+        }
+    }
+    strcat(outStr, "\n\r> ");
+    usbWrite(outStr);               
+}
+
+
 static void usbGetCommandLine()
 {
 
@@ -725,6 +751,11 @@ static void usbGetCommandLine()
     {
         if (strncmp(G_line, "unlock", 1) == 0)
         {
+            if (!G_usbLocked) {
+                usbWrite("\n\rDevice is already Unlocked\n\r> ");
+                G_line[0] = '\0';
+                return;
+            }
             char *pw;
             pw = getArg((char*)G_line);
             uint8_t pwLen = strlen(USB_PASSWORD);
@@ -733,6 +764,11 @@ static void usbGetCommandLine()
                 usbWrite("\n\rUnlocked\n\r> ");
                 G_usbLocked = false;
             }
+            else
+            {
+                 usbWrite("\n\rIncorrect Password\n\r> ");
+            }
+            G_line[0] = '\0';
             return;
         }
 
@@ -755,51 +791,45 @@ static void usbGetCommandLine()
         {
             G_getStatus = true;
         }
-        else if (strncmp(G_line, "pixels", 1) == 0)
+        else if (strncmp(G_line, "pixel", 1) == 0)
         {
-            G_showPixels = true;
+            G_showPixels = !G_showPixels;
             G_getStatus = true;
         }
         else if (strncmp(G_line, "run", 1) == 0)
         {
             G_run_usb = true;
             G_state = 2;
-            usbWrite(G_prompt);
+            sprintf(outStr, "\n\rControl with asdf. a=left, s=sel, d=right, f=fire trig q=quit\n\r> ");
+            usbWrite(outStr);
         }
-        else if (strncmp(G_line, "erase", 1) == 0)
+        else if (strncmp(G_line, "delete", 1) == 0)
         {
-            usbWrite(G_prompt);
+            uint8_t i;
+            for (i=0; i<G_custom_load_index; i++)
+            {
+                G_waveformTable[NUM_WAVEFORMS-1][i] = 0;
+            }
+            G_custom_load_index = 0;
+            usbWrite("\n\rEngineering waveforms erased\n\r");
         }
-        else if (strncmp(G_line, "clear", 1) == 0)
+        else if (strncmp(G_line, "wave", 1) == 0)
         {
-            usbWrite(G_prompt);
+            writeWave();
         }
         else if (strncmp(G_line, "load", 1) == 0)
         {
             G_custom_load_in_progress = true;
             G_custom_load_index = 0;
+//            G_usbEcho = false;
             usbWrite("\n\rEnter one value per line. Press empty-line<Enter> to stop\n\r+ ");
         }
         else if (G_custom_load_in_progress && strlen(G_line)==0)
         {
             G_custom_load_in_progress = false;
-            sprintf(outStr, "\n\rCustom Table loaded. Wave Len=%d,Waveform #%d, data=", G_custom_load_index, NUM_WAVEFORMS-1);
-            uint8_t i = 0;
-            for (i=0; i<G_custom_load_index; i++)
-            {
-                sprintf(dataStr, " %d", G_waveformTable[NUM_WAVEFORMS-1][i]);
-                if (strlen(outStr) > 1000) 
-                {
-                    strcat(outStr, "... ");
-                    break;
-                }
-                else
-                {
-                    strcat(outStr, dataStr);
-                }
-            }
-            strcat(outStr, "\n\r> ");
-            usbWrite(outStr);               
+//            G_usbEcho = true;
+
+            writeWave();
         }
         else if (G_custom_load_in_progress && isdigit(G_line[0]))
         {

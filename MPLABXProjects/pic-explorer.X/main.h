@@ -103,15 +103,15 @@ char G_prompt[] = "\n\r> ";
 char G_help[] = "\n\r"
         "Help Menu\n\r"
         "-----------------\n\r"
-        "help (h)\n\r"
-        "lock (lock)\n\r"
+        "help   (h)\n\r"
+        "lock   (lock)\n\r"
         "unlock [password](u)\n\r"
-        "load (l)\n\r"
-        "erase (e)\n\r"
-        "clear (c)\n\r"
-        "status (s)\n\r"
-        "run (r) - control with asdf. a=left, s=sel, d=right, f=fire trig q=quit\n\r"
-        "pixels (p)\n\r"
+        "load   (l) - load table\n\r"
+        "delete (d) - delete table\n\r"
+        "pixel  (p) - toggle between pixel and text display\n\r"
+        "run    (r) - run remotely over usb\n\r"
+        "status (s) - show status\n\r"
+        "wave   (w) - show current waveform\n\r"
         "> ";
 
 const char G_modes0[][6+1] = {" AAAA ", "BBBBB ", " CCC ", "DDDDDD"};
