@@ -95,6 +95,25 @@ bool usbUp()
     return true;
 } // usbUp
 
+uint8_t usbWrite200(char *str)
+{
+    char tmpStr[201];
+    tmpStr[200] =  '\0';
+    if (!usbUp())
+    {
+        return 0; // fail
+    }
+
+    while (!USBUSARTIsTxTrfReady()) CDCTxService();
+    strncpy(tmpStr, str, 200);
+    putsUSBUSART(tmpStr);
+
+    while (!USBUSARTIsTxTrfReady()) CDCTxService();
+
+    return 1; // success
+} // usbWrite256
+
+
 uint8_t usbWrite(char *str)
 {
     if (!usbUp())
@@ -102,58 +121,80 @@ uint8_t usbWrite(char *str)
         return 0; // fail
     }
 
-    while (!USBUSARTIsTxTrfReady()) CDCTxService();
-    putsUSBUSART(str);
-    while (!USBUSARTIsTxTrfReady()) CDCTxService();
+    uint16_t len=strlen(str);
+    uint16_t i = 0;
+    while (i <= len)
+    {
+        usbWrite200(&(str[i]));
+        i += 200; // (i > 200) ? i - 200 : 0;
+    }
+    
 
     return 1; // success
-} // usbPutString
+} // usbWrite
 
-static bool usbGetLine(uint8_t line[], uint8_t maxLen)
+static bool usbGetLine(char line[], uint8_t maxLen)
 {
+    static uint8_t readBufferPos = 0;
+    static uint8_t readBufferLen = 0;
     static uint8_t linepos = 0;
+    uint8_t lineposPrev = linepos;
     uint8_t ch;
-
+    bool    eoln = false;
+    
     if (!usbUp())
     {
         return false;
     }
-    uint8_t numBytesRead = getsUSBUSART(G_readBuffer, 1);
-    if (numBytesRead == 0)
-    {
-        return false;
+    
+    if (readBufferPos == readBufferLen) {
+        readBufferLen = getsUSBUSART(G_readBuffer, sizeof(G_readBuffer));
+        readBufferPos = 0;
+        if (readBufferLen == 0)
+        {
+            return false;
+        }
     }
-    if (G_readBuffer[0] == 0x0D)
-    {
-        linepos = 0;
-        return true;
+    
+    while (readBufferPos < readBufferLen) {
+        ch = G_readBuffer[readBufferPos++];
+        if (ch == 0x0D)
+        {
+            linepos = 0;
+            eoln = true;
+            break;
+        }
+
+        if (linepos >= maxLen - 1) // overflow error
+        {
+            line[maxLen - 1] = '\0';
+            linepos = 0;
+            eoln = true;
+            break;
+        }
+        else if (ch == '\b')
+        {
+            if (linepos > 0) linepos--;
+            G_line[linepos] = '\0';
+        }
+        else if (ch == 0x0A) // ignore return
+        {
+            // skip
+        }
+        else
+        {
+            line[linepos++] = ch;
+            line[linepos] = '\0';
+        }
     }
+    
     if (G_usbEcho)
     {
-        putUSBUSART(G_readBuffer, 1);
+        putsUSBUSART(&(line[lineposPrev]));
     }
-
-    ch = G_readBuffer[0];
-    if (linepos >= maxLen - 1) // overflow error
-    {
-        line[maxLen - 1] = '\0';
-        linepos = 0;
-        return true; // end of line
-    }
-    else if (ch == '\b')
-    {
-        if (linepos > 0) linepos--;
-    }
-    else if (ch == 0x0A) // ignore return
-    {
-        // skip
-    }
-    else
-    {
-        line[linepos++] = ch;
-        line[linepos] = '\0';
-    }
-    return false;
+    
+    
+    return eoln;
 } // usbGetLine
 
 
@@ -240,6 +281,7 @@ static uint16_t checkBattery()
     uint16_t  rangeADC   = maxADC - minADC;
     uint16_t  actualADC;
     uint16_t  percent;
+    static uint16_t percentPrev;
 
     actualADC = readADC1();
     if (actualADC < minADC)
@@ -255,6 +297,15 @@ static uint16_t checkBattery()
         percent = (uint16_t)(100 * (actualADC - minADC) / rangeADC);
     }
     
+    // stop the flickering
+    if (percent == percentPrev + 1) {
+        percent = percentPrev;
+    }
+    else
+    {
+        percentPrev = percent;
+    }
+
     return percent;
 }
 
@@ -284,7 +335,7 @@ static bool triggerPressed()
     return retVal;
 }
 
-static void handleTrigger()
+static void triggerHandler()
 {
     static uint8_t trigCnt = 0;
     if (triggerPressed())
@@ -341,7 +392,7 @@ static bool selPressed()
     return retVal;
 }
 
-static void handleButtons()
+static void buttonHandler()
 {        
     if (leftPressed())
     {
@@ -467,7 +518,7 @@ static void pixelizeScreen()
     }
 }
 
-static void updateDisplay()
+static void displayHandler()
 {
     uint16_t batteryLevel = checkBattery();
     char batteryLevelStr[4];
@@ -566,8 +617,230 @@ static void updateDisplay()
     }
 }
 
+uint8_t parseHexLine(const char *line, uint8_t *len, uint32_t *addr, uint8_t data[])
+{
+    uint32_t lineLen;
+    lineLen = strlen(line);
+    uint32_t linePos = 0;
+    uint8_t checkSumCalc = 0;
+    if (lineLen < 10)
+    {
+        return 0; // error. line too short
+    }
+    
+    if (line[0] != ':')
+    {
+        return 0; // error. line must start with ':'
+    }
+    
+    char dataLenStr[3];
+    dataLenStr[0] = line[1];
+    dataLenStr[1] = line[2];
+    dataLenStr[2] = '\0';
+    uint8_t dataLen = (uint8_t)strtol(dataLenStr, NULL, 16);
+    checkSumCalc += dataLen;
+    *len = dataLen;
+    
+    if (dataLen == 0)
+    {
+        return 0; // warning, no data
+    }
+    char addrStr[2] = "  ";
+    uint8_t i = 0;
+    uint8_t addrByte = 0;
+    uint32_t addrInt = 0;
+    for (i=0; i<6; i+=2)
+    {
+        addrStr[0] = line[i+3];
+        addrStr[1] = line[i+4];
+        addrByte = (uint8_t)strtol(addrStr, NULL, 16);
+        addrInt <<= 8;
+        addrInt += addrByte;
+        checkSumCalc += addrByte;
+    }
+    *addr = addrInt; // :02123456aa554f
+    
+    char dataStr[3] = "  ";
+    linePos = 9;
+    for (i=0; i<dataLen; i++)
+    {
+        if (linePos+2 > lineLen) {
+            return 0; // error. line too short
+        }
+        dataStr[0] = line[linePos++];
+        dataStr[1] = line[linePos++];
+        data[i] = (uint8_t)strtol(dataStr, NULL, 16);
+        checkSumCalc += data[i];
+    }
+    
+    char checkSumStr[3] = "  ";
+    checkSumStr[0] = line[linePos++];
+    checkSumStr[1] = line[linePos++];
+    uint8_t checkSum;
+    checkSum = (uint8_t)strtol(checkSumStr, NULL, 16);
+    checkSumCalc += checkSum;
+    
+    if (checkSumCalc != 0)
+    {
+        return dataLen; // error. checksum
+    }
 
-static void charMode()
+    return dataLen;
+} // parseHexLine
+
+
+
+// l - without args. toggles start stop
+// l decimalValue
+uint8_t parseLoadLine(const char *line)
+{
+    uint32_t lineLen;
+    lineLen = strlen(line);
+    if (lineLen == 0)
+    {
+        return 0; // error. empty line
+    }
+    
+    char *should_be_0;
+    uint16_t dataVal = (uint16_t)strtol(G_line, &should_be_0, 10);
+    if (*should_be_0 != '\0') {
+        return 0; // non-digit found
+    }
+    
+    G_waveformTable[NUM_WAVEFORMS-1][G_custom_load_index++] = dataVal;
+    return 1;
+} // parseLoadLine
+
+static void usbGetCommandLine()
+{
+
+    uint8_t hexLen = 0;
+    uint32_t hexAddr = 0;
+    uint8_t hexData[20];
+    char    outStr[1024];
+    char    dataStr[40];
+
+    bool eoln = usbGetLine(G_line, USB_LINELEN);
+    if (eoln)
+    {
+        if (strncmp(G_line, "unlock", 1) == 0)
+        {
+            char *pw;
+            pw = getArg((char*)G_line);
+            uint8_t pwLen = strlen(USB_PASSWORD);
+            if (strncmp(pw, USB_PASSWORD, pwLen) == 0)
+            {
+                usbWrite("\n\rUnlocked\n\r> ");
+                G_usbLocked = false;
+            }
+            return;
+        }
+
+        if (G_usbLocked)
+        {
+            usbWrite("\n\rDevice is locked\n\r> ");
+            return;
+        }
+
+        if (strncmp(G_line, "lock", 4) == 0)
+        {
+            G_usbLocked = true;
+            usbWrite("\n\rDevice is locked\n\r> ");
+        }
+        else if (strncmp(G_line, "help", 1) == 0)
+        {
+            usbWrite(G_help);
+        }
+        else if (strncmp(G_line, "status", 1) == 0)
+        {
+            G_getStatus = true;
+        }
+        else if (strncmp(G_line, "pixels", 1) == 0)
+        {
+            G_showPixels = true;
+            G_getStatus = true;
+        }
+        else if (strncmp(G_line, "run", 1) == 0)
+        {
+            G_run_usb = true;
+            G_state = 2;
+            usbWrite(G_prompt);
+        }
+        else if (strncmp(G_line, "erase", 1) == 0)
+        {
+            usbWrite(G_prompt);
+        }
+        else if (strncmp(G_line, "clear", 1) == 0)
+        {
+            usbWrite(G_prompt);
+        }
+        else if (strncmp(G_line, "load", 1) == 0)
+        {
+            G_custom_load_in_progress = true;
+            G_custom_load_index = 0;
+            usbWrite("\n\rEnter one value per line. Press empty-line<Enter> to stop\n\r+ ");
+        }
+        else if (G_custom_load_in_progress && strlen(G_line)==0)
+        {
+            G_custom_load_in_progress = false;
+            sprintf(outStr, "\n\rCustom Table loaded. Wave Len=%d,Waveform #%d, data=", G_custom_load_index, NUM_WAVEFORMS-1);
+            uint8_t i = 0;
+            for (i=0; i<G_custom_load_index; i++)
+            {
+                sprintf(dataStr, " %d", G_waveformTable[NUM_WAVEFORMS-1][i]);
+                if (strlen(outStr) > 1000) 
+                {
+                    strcat(outStr, "... ");
+                    break;
+                }
+                else
+                {
+                    strcat(outStr, dataStr);
+                }
+            }
+            strcat(outStr, "\n\r> ");
+            usbWrite(outStr);               
+        }
+        else if (G_custom_load_in_progress && isdigit(G_line[0]))
+        {
+            parseLoadLine(G_line);
+            usbWrite("\n\r+ ");
+        }
+        else if (strncmp(G_line, ":", 1) == 0)
+        {
+            uint8_t checkSumLen;
+            checkSumLen = parseHexLine(G_line, &hexLen, &hexAddr, hexData);
+            sprintf(outStr, "\n\rHex Len=%d, addr=0x%02x%04x checkLen=%d data=", hexLen, (int)(hexAddr >> 16), (int)hexAddr, (int)checkSumLen);
+            uint8_t i = 0;
+            for (i=0; i<hexLen; i++)
+            {
+                sprintf(dataStr, " 0x%02x", hexData[i]);
+                strcat(outStr, dataStr);
+            }
+            strcat(outStr, "\n\r");
+            strcat(outStr, G_prompt);
+            usbWrite(outStr);
+        }
+        else if (strlen(G_line)==0)
+        {
+            strcat(outStr, G_prompt);
+            usbWrite(outStr);
+        }
+        else
+        {
+            sprintf((char*) G_writeBuffer, "\n\rError 1: Invalid command. %s\n\r> ",G_line);
+            usbWrite((char*)G_writeBuffer);
+        }
+        uint16_t i;
+        for (i = 0; i < USB_LINELEN; i++)
+        {
+            G_line[i] = '\0';
+        }
+    }
+}
+
+
+static void usbGetCommandChar()
 {
     char ch = usbGetChar();
     if (ch)
@@ -592,85 +865,12 @@ static void charMode()
         {
             G_state = 1;
             G_run_usb = false;
-            usbWrite(prompt);                   
+            usbWrite(G_prompt);                   
         }
     }
 }
 
-static void lineMode()
-{
-    bool eoln = usbGetLine(line, USB_LINELEN);
-    if (eoln)
-    {
-        if (strncmp((char*) line, "unlock", 1) == 0)
-        {
-            char *pw;
-            pw = getArg((char*)line);
-            uint8_t pwLen = strlen(USB_PASSWORD);
-            if (strncmp(pw, USB_PASSWORD, pwLen) == 0)
-            {
-                usbWrite("\n\rUnlocked\n\r> ");
-                G_usbLocked = false;
-            }
-            return;
-        }
-
-        if (G_usbLocked)
-        {
-            usbWrite("\n\rDevice is locked\n\r> ");
-            return;
-        }
-
-        if (strncmp((char*) line, "lock", 4) == 0)
-        {
-            G_usbLocked = true;
-            usbWrite("\n\rDevice is locked\n\r> ");
-        }
-        else if (strncmp((char*) line, "help", 1) == 0)
-        {
-            usbWrite(help);
-        }
-        else if (strncmp((char*) line, "status", 1) == 0)
-        {
-            G_getStatus = true;
-        }
-        else if (strncmp((char*) line, "pixels", 1) == 0)
-        {
-            G_showPixels = true;
-            G_getStatus = true;
-        }
-        else if (strncmp((char*) line, "run", 1) == 0)
-        {
-            G_run_usb = true;
-            G_state = 2;
-            usbWrite(prompt);
-        }
-        else if (strncmp((char*) line, "load", 1) == 0)
-        {
-            usbWrite(prompt);
-        }
-        else if (strncmp((char*) line, "erase", 1) == 0)
-        {
-            usbWrite(prompt);
-        }
-        else if (strncmp((char*) line, "clear", 1) == 0)
-        {
-            usbWrite(prompt);
-        }
-        else
-        {
-            sprintf((char*) G_writeBuffer, "\n\rError 1: Invalid command. %s\n\r> ",line);
-            usbWrite((char*)G_writeBuffer);
-        }
-        uint16_t i;
-        for (i = 0; i < USB_LINELEN; i++)
-        {
-            line[i] = '\0';
-        }
-    }
-}
-
-static void handleUSB()
+static void usbHandler()
 {
     uint8_t success;
     switch (G_state)
@@ -683,10 +883,10 @@ static void handleUSB()
         }
         break;
     case 1:
-        lineMode();
+        usbGetCommandLine();
         break;
     case 2: // display
-        charMode();
+        usbGetCommandChar();
         break;
     default:
         break;
@@ -702,19 +902,19 @@ static void handleUSB()
  */
 int main(void)
 {
-
     SYSTEM_Initialize(); // Generated by MCC
     LATA = 0x0000;
     while (1)
     {
         spin(100000);
-        handleUSB();
-        handleTrigger();
+        usbHandler();
+        triggerHandler();
         bool testInProgress = (G_triggerCountDown > 0);
-        if (!testInProgress) {
-            handleButtons();
+        bool checkButtons = !testInProgress;
+        if (checkButtons) {
+            buttonHandler();
         }
-        updateDisplay();
+        displayHandler();
     }
     return 1;
 }

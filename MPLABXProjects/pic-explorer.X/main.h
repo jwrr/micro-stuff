@@ -15,7 +15,7 @@
 
 static uint8_t G_readBuffer[CDC_DATA_OUT_EP_SIZE];
 static uint8_t G_writeBuffer[CDC_DATA_IN_EP_SIZE];
-static uint8_t line[USB_LINELEN] = "";
+static char    G_line[USB_LINELEN] = "";
 
 char     G_version[20]  = "1.2.3";
 double   G_voltage      = 17.62;
@@ -37,8 +37,11 @@ bool     G_usbEcho      = true;
 bool     G_selfTestResult   = true; // true = pass; false = fail
 uint8_t  G_triggerCountDown = 0;
 uint8_t  G_triggerCountDownMax = 5; 
+uint8_t  G_custom_load_index = 0;
+bool     G_custom_load_in_progress = false;
+bool     G_custom_loaded = false;
     
-uint16_t G_waveformTable[WAVEFORM_SIZE];
+uint16_t G_waveformTable[NUM_WAVEFORMS][WAVEFORM_SIZE];
 
 char G_screen[13][22] = {
     "CHARGE:       100%\n\r", // 0
@@ -96,8 +99,8 @@ char *G_screenMode0        = &(G_screen[5][7]);
 char *G_screenMode1        = &(G_screen[7][5]);
 char *G_screenUSB          = &(G_screen[11][6]);
 
-char prompt[] = "\n\r> ";
-char help[] = "\n\r"
+char G_prompt[] = "\n\r> ";
+char G_help[] = "\n\r"
         "Help Menu\n\r"
         "-----------------\n\r"
         "help (h)\n\r"
