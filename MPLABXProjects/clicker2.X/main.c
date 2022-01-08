@@ -62,9 +62,23 @@ int main(void)
     {
         
         for (i=0; i<1000000; i++);
-        RE8_LED1_Toggle();
-        RG13_LED2_Toggle();
-        // Add your application code
+        if ( RE2_T3_GetValue())
+        {
+            RE8_LED1_Toggle();
+        }
+        else
+        {
+            RE8_LED1_SetHigh();
+        }
+        
+        if (RA0_T2_GetValue())
+        {
+            RG13_LED2_Toggle();
+        }
+        else
+        {
+            RG13_LED2_SetHigh();
+        }
     }
 
     return 1;
