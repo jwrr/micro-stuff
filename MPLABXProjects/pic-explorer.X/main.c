@@ -192,10 +192,15 @@ static bool usbGetLine(char line[], uint8_t maxLen)
     {
         putsUSBUSART(&(line[lineposPrev]));
     }
+//    else
+//    {
+//        putsUSBUSART(".");
+//
+//    }
     
     
     return eoln;
-} // usbGetLine
+}
 
 
 static char usbGetChar()
@@ -212,7 +217,7 @@ static char usbGetChar()
     }
     ch = G_readBuffer[0];
     return ch;
-} // usbGetLine
+}
 
 
 char *getArg(char *line)
@@ -322,7 +327,7 @@ static void changeText(char *str, char *newstr)
 static bool triggerPressed()
 {
     static bool trigPrev = false;
-    bool trig = isPressed(TRIGGER) || G_trig_usb;
+    bool trig = isPressed(TRIGGER) || G_usbTrig;
     bool retVal = false;
     if (G_triggerCountDown == 0) {
         retVal = trig && !trigPrev;
@@ -335,12 +340,27 @@ static bool triggerPressed()
     return retVal;
 }
 
+uint8_t getCurrentWaveTableID()
+{
+    uint8_t id = G_mode[0]*G_modeCount[1] + G_mode[1];
+    return id;
+}
+
+uint8_t getCurrentWaveTableLen()
+{
+    uint8_t id = getCurrentWaveTableID();
+    uint8_t i = 0;
+    for (i=0; G_waveformTable[id][i] != -1; i++);
+    return i;
+}
+
 static void triggerHandler()
 {
     static uint8_t trigCnt = 0;
-    if (triggerPressed())
+    bool waveTableEmpty = getCurrentWaveTableLen() == 0;
+    if (triggerPressed() && !waveTableEmpty)
     {
-        trigCnt = (trigCnt >= 10) ? 0 : trigCnt + 1;
+        trigCnt = (trigCnt >= 100) ? 0 : trigCnt + 1;
         
         if (G_triggerCountDown == 0)
         {
@@ -351,7 +371,7 @@ static void triggerHandler()
             G_triggerCountDown--;
             if (G_triggerCountDown == 0)
             {
-                G_trig_usb = false;
+                G_usbTrig = false;
             }
         }
     }
@@ -365,8 +385,8 @@ static void triggerHandler()
 static bool leftPressed()
 {
     static bool leftPrev = false;
-    bool left = isPressed(LEFTARROW) || G_left_usb;
-    G_left_usb = false;
+    bool left = isPressed(LEFTARROW) || G_usbLeft;
+    G_usbLeft = false;
     bool retVal = left && !leftPrev;
     leftPrev = left;
     return retVal;
@@ -375,8 +395,8 @@ static bool leftPressed()
 static bool rightPressed()
 {
     static bool rightPrev = false;
-    bool right = isPressed(RIGHTARROW) || G_right_usb;
-    G_right_usb = false;
+    bool right = isPressed(RIGHTARROW) || G_usbRight;
+    G_usbRight = false;
     bool retVal = right && !rightPrev;
     rightPrev = right;
     return retVal;
@@ -385,23 +405,28 @@ static bool rightPressed()
 static bool selPressed()
 {
     static bool selPrev = false;
-    bool sel = isPressed(SELECT) || G_sel_usb;
-    G_sel_usb = false;
+    bool sel = isPressed(SELECT) || G_usbSel;
+    G_usbSel = false;
     bool retVal = sel && !selPrev;
     selPrev = sel;
     return retVal;
 }
 
 static void buttonHandler()
-{        
+{   
+    uint8_t lastEntry = G_modeCount[G_modeSel] - 1;
+    if (G_modeSel==0 && G_engineeringMode)
+    {
+        lastEntry++;
+    }
     if (leftPressed())
     {
-        G_mode[G_modeSel] = (G_mode[G_modeSel]==0) ? 2 : G_mode[G_modeSel] - 1;
+        G_mode[G_modeSel] = (G_mode[G_modeSel]==0) ? lastEntry : G_mode[G_modeSel] - 1;
     }
 
     if (rightPressed())
     {
-        G_mode[G_modeSel] = (G_mode[G_modeSel]==2) ? 0 : G_mode[G_modeSel] + 1;
+        G_mode[G_modeSel] = (G_mode[G_modeSel]==lastEntry) ? 0 : G_mode[G_modeSel] + 1;
     }
         
     if (selPressed())
@@ -546,11 +571,11 @@ static void displayHandler()
     changeText(G_screenSignal, signalStr);
     
     char mode0Str[10];
-    sprintf(mode0Str, "%s", G_modes0[G_mode[0]]);
+    sprintf(mode0Str, "%s", G_modeNames0[G_mode[0]]);
     changeText(G_screenMode0, mode0Str);
     
     char mode1Str[10];
-    sprintf(mode1Str, "%s", G_modes1[G_mode[1]]);
+    sprintf(mode1Str, "%s", G_modeNames1[G_mode[1]]);
     changeText(G_screenMode1, mode1Str);
     
     
@@ -568,11 +593,12 @@ static void displayHandler()
         G_screen[7][0]  = '<';
         G_screen[7][17] = '>';
     }
-    
-    
-    char usbStr[10];
-    sprintf(usbStr, "%s", usbUp() ? " USB ON "  :
-                                    "        ");
+
+    char usbStr[22];
+    sprintf(usbStr, "%s", G_mostRecentCommand[0] ? G_mostRecentCommand  :
+                          G_engineeringMode      ? "       ENG        " :
+                          usbUp()                ? "     USB ON       " :
+                                                   "                  ");
     changeText(G_screenUSB, usbStr);
 
     int ii;
@@ -584,35 +610,47 @@ static void displayHandler()
             break;
         }
     }
-    
-    if (G_run_usb && !screenChange)
+
+    if (G_run_usb && !screenChange && !G_refreshScreen && !G_forceDisplayUpdate)
     {
         return;
     }
     
+    G_forceDisplayUpdate = false;
+    
     for (ii=0; ii<13; ii++) {
         strcpy(G_screenPrev[ii], G_screen[ii]);
     }
+
+    char ssss[20]; sprintf(ssss, "%d %d %d %d", G_run_usb, screenChange, G_refreshScreen, G_forceDisplayUpdate);
+    if (!G_usbEcho) putsUSBUSART(G_outStr);
     
-    if (G_run_usb || G_getStatus)
+    if (G_run_usb || G_refreshScreen)
     {
-        G_getStatus = false;
+        G_refreshScreen = false;
         if (usbUp()) {
-            if (G_showPixels) {
+            if (G_showGraphics) {
                 usbWrite("\r\n");
                 pixelizeScreen();
             }
             else
             {
                 int i;
-                char str[13*22] = "\f";
+                char str[2048+13*22] = "\f";
                 for (i=0; i<13; i++) {
                     strcat(str, G_screen[i]);
                  }
+                strcat(str, G_outStr);
                 usbWrite(str);
+                G_outStr[0] = '\0';
             }
             CDCTxService();
         }
+    }
+    else
+    {
+        usbWrite(G_outStr);
+        G_outStr[0] = '\0';
     }
 }
 
@@ -688,10 +726,7 @@ uint8_t parseHexLine(const char *line, uint8_t *len, uint32_t *addr, uint8_t dat
 } // parseHexLine
 
 
-
-// l - without args. toggles start stop
-// l decimalValue
-uint8_t parseLoadLine(const char *line)
+uint8_t usbLoadWaveTableEntry(const char *line)
 {
     uint32_t lineLen;
     lineLen = strlen(line);
@@ -700,203 +735,352 @@ uint8_t parseLoadLine(const char *line)
         return 0; // error. empty line
     }
     
+    uint8_t tableID = getCurrentWaveTableID();
+    
     char *should_be_0;
-    uint16_t dataVal = (uint16_t)strtol(G_line, &should_be_0, 10);
+    int16_t dataVal = (int16_t)strtol(G_line, &should_be_0, 10);
     if (*should_be_0 != '\0') {
         return 0; // non-digit found
     }
     
-    G_waveformTable[NUM_WAVEFORMS-1][G_custom_load_index++] = dataVal;
-    return 1;
-} // parseLoadLine
+    G_waveformTable[tableID][G_customLoadIndex++] = dataVal;
+    G_waveformTable[tableID][G_customLoadIndex] = -1;
+    uint16_t i;
+    strcpy(G_mostRecentCommand, "  LOADING");
 
-
-void writeWave()
-{
-    char outStr[1024];
-    char dataStr[10]; 
-
-    G_custom_load_in_progress = false;
-    sprintf(outStr, "\n\rCustom Table. Wave Len=%d,Waveform #%d, data=", G_custom_load_index, NUM_WAVEFORMS-1);
-    uint8_t i = 0;
-    for (i=0; i<G_custom_load_index; i++)
+    for (i=0; i < G_customLoadIndex; i+=40)
     {
-        sprintf(dataStr, " %d", G_waveformTable[NUM_WAVEFORMS-1][i]);
-        if (strlen(outStr) > 1000) 
+        if (strlen(G_mostRecentCommand) >= 18) break;
+        strcat(G_mostRecentCommand, ".");
+    }
+    
+    while (strlen(G_mostRecentCommand) < 18)
+    {
+        strcat(G_mostRecentCommand, " ");
+    }
+    // G_forceDisplayUpdate = true;
+    return 1;
+}
+
+void strtrim(char *trimmed, const char *untrimmed)
+{
+    int len = strlen(untrimmed);
+    int left, right, i;
+    for (left = 0; isspace(untrimmed[left]); left++);
+    if (left == len) // handle all spaces and empty string
+    {
+        trimmed[0] = '\0';
+    }
+    else
+    {
+        for (right = len - 1; isspace(untrimmed[right]); right--);
+        for (i = 0; i<=right; i++) trimmed[i] = untrimmed[left+i];
+        trimmed[i] = '\0';
+    }
+    return;
+}
+
+void usbViewWaveTable()
+{
+    char dataStr[10]; 
+    uint8_t tableID = getCurrentWaveTableID();
+    uint8_t tableLen = getCurrentWaveTableLen();
+
+    G_waveLoadInProgress = false;
+    char mode0[22];
+    char mode1[22];
+    strtrim(mode0, G_modeNames0[G_mode[0]]);
+    strtrim(mode1, G_modeNames1[G_mode[1]]);
+    
+    if (tableLen == 0)
+    {
+        sprintf(G_outStr, "\n\rTable[%s,%s](%d) is empty", mode0, mode1, tableID);
+    }
+    else
+    {
+        sprintf(G_outStr, "\n\rTable[%s,%s](%d). Wave Len=%d, data=", mode0, mode1, tableID, tableLen);
+    }
+    uint8_t i = 0;
+    for (i=0; G_waveformTable[tableID][i] != -1; i++)
+    {
+        sprintf(dataStr, " %d", G_waveformTable[tableID][i]);
+        if (strlen(G_outStr) > 2000)
         {
-            strcat(outStr, "... ");
+            strcat(G_outStr, "...");
             break;
         }
         else
         {
-            strcat(outStr, dataStr);
+            strcat(G_outStr, dataStr);
         }
     }
-    strcat(outStr, "\n\r> ");
-    usbWrite(outStr);               
+    strcat(G_outStr, "\n\r> ");
 }
 
-
-static void usbGetCommandLine()
+void usbStopLoadingWaveTable()
 {
+    G_waveLoadInProgress = false;
+    usbViewWaveTable();
+    G_usbEcho = true;
+    strcpy(G_mostRecentCommand, "      LOAD DONE   ");
+}
+      
+void usbClearWaveTable()
+{
+    uint8_t i;
+    uint8_t tableID = getCurrentWaveTableID();
+    uint8_t customTableID = G_modeCount[0] * G_modeCount[1];
+    if (tableID < customTableID)
+    {
+        strcpy(G_mostRecentCommand, " WAVE NOT CLEARED ");
+        strcpy(G_outStr, "\n\rWaveform NOT cleared. Only CUSTOM waveforms can be cleared.\n\r> ");
+        return;
+    }
+    
+    for (i=0; G_waveformTable[tableID][i] != -1; i++)
+    {
+        G_waveformTable[tableID][i] = -1;
+    }
+    strcpy(G_mostRecentCommand, "   WAVE CLEARED   ");
 
+    strcpy(G_outStr, "\n\rWaveform cleared\n\r> ");
+}
+
+void usbStartLoadingWaveTable()
+{
+    sprintf(G_outStr, "\n\r");
+    if (!G_engineeringMode)
+    {
+        strcat(G_outStr, "Switching to ENGINEERING mode\n\r");
+        G_engineeringMode = true;
+    }
+    G_waveLoadInProgress = true;
+    G_customLoadIndex = 0;
+    if (G_mode[0] < G_modeCount[0])
+    {
+        sprintf(G_outStr + strlen(G_outStr), "Switching from%s to %s.\n\r", G_modeNames0[G_mode[0]], G_modeNames0[G_modeCount[0]]);
+        G_mode[0] = G_modeCount[0];
+    }
+    sprintf(G_outStr + strlen(G_outStr), "Table%s will be loaded\n\r", G_modeNames1[G_mode[1]]);
+    strcat(G_outStr, "Paste values with 1 value per line. The last value is '-1' to finish loading.\n\r+ ");
+    G_usbEcho = false;
+}
+
+void usbLoadInProgressHandler()
+{
+    if (isdigit(G_line[0]))
+    {
+        usbLoadWaveTableEntry(G_line);
+    }
+    else
+    {
+        usbStopLoadingWaveTable();
+    }
+}
+
+static void usbProcessCommandLine()
+{
     uint8_t hexLen = 0;
     uint32_t hexAddr = 0;
     uint8_t hexData[20];
-    char    outStr[1024];
     char    dataStr[40];
 
     bool eoln = usbGetLine(G_line, USB_LINELEN);
-    if (eoln)
+    if (!eoln)
     {
-        if (strncmp(G_line, "unlock", 1) == 0)
+        return;
+    }
+
+    if (G_waveLoadInProgress)
+    {
+        usbLoadInProgressHandler();
+        return;
+    }
+    
+    G_outStr[0] = '\0';
+    if (strncmp(G_line, "password", 1) == 0)
+    {
+        if (!G_usbLocked)
         {
-            if (!G_usbLocked) {
-                usbWrite("\n\rDevice is already Unlocked\n\r> ");
-                G_line[0] = '\0';
-                return;
-            }
+            strcpy(G_outStr, "\n\rLocking device\n\r> ");
+            G_usbLocked = true;
+        }
+        else
+        {
             char *pw;
             pw = getArg((char*)G_line);
             uint8_t pwLen = strlen(USB_PASSWORD);
             if (strncmp(pw, USB_PASSWORD, pwLen) == 0)
             {
-                usbWrite("\n\rUnlocked\n\r> ");
+                strcpy(G_outStr, "\n\rDevice is unlocked\n\r> ");
                 G_usbLocked = false;
             }
             else
             {
-                 usbWrite("\n\rIncorrect Password\n\r> ");
+                 strcpy(G_outStr, "\n\rIncorrect Password\n\r> ");
             }
-            G_line[0] = '\0';
-            return;
         }
+        G_line[0] = '\0';
+        return;
+    }
 
-        if (G_usbLocked)
-        {
-            usbWrite("\n\rDevice is locked\n\r> ");
-            return;
-        }
+    if (G_usbLocked)
+    {
+        strcpy(G_outStr, "\n\rDevice is locked\n\r> ");
+        return;
+    }
 
-        if (strncmp(G_line, "lock", 4) == 0)
+    if (strncmp(G_line, "clear", 1) == 0)
+    {
+        usbClearWaveTable();
+    }
+    else if (strncmp(G_line, "engineering", 1) == 0)
+    {
+        G_engineeringMode = !G_engineeringMode;
+        sprintf(G_outStr, "\n\rEngineer Mode = %s\n\r> ", G_engineeringMode ? "ON" : "OFF");
+    }
+    else if (strncmp(G_line, "graphics", 1) == 0)
+    {
+        G_showGraphics = !G_showGraphics;
+        G_refreshScreen = true;
+    }
+    else if (strncmp(G_line, "help", 1) == 0)
+    {
+        strcpy(G_outStr, G_help);
+    }
+    else if (strncmp(G_line, "load", 1) == 0)
+    {
+        usbStartLoadingWaveTable();
+    }
+    else if (strncmp(G_line, "run", 1) == 0)
+    {
+        G_refreshScreen = true;
+        G_run_usb = true;
+        G_state = 2;
+        sprintf(G_outStr, "\n\rControl with asdf. a=left, s=sel, d=right, f=fire trig q=quit\n\r> ");
+    }
+    else if (strncmp(G_line, "refresh", 1) == 0)
+    {
+        G_refreshScreen = true;
+    }
+    else if (strncmp(G_line, "view", 1) == 0)
+    {
+        usbViewWaveTable();
+    }
+    else if (strncmp(G_line, ":", 1) == 0)
+    {
+        uint8_t checkSumLen;
+        checkSumLen = parseHexLine(G_line, &hexLen, &hexAddr, hexData);
+        sprintf(G_outStr, "\n\rHex Len=%d, addr=0x%02x%04x checkLen=%d data=", hexLen, (int)(hexAddr >> 16), (int)hexAddr, (int)checkSumLen);
+        uint8_t i = 0;
+        for (i=0; i<hexLen; i++)
         {
-            G_usbLocked = true;
-            usbWrite("\n\rDevice is locked\n\r> ");
+            sprintf(dataStr, " 0x%02x", hexData[i]);
+            strcat(G_outStr, dataStr);
         }
-        else if (strncmp(G_line, "help", 1) == 0)
-        {
-            usbWrite(G_help);
-        }
-        else if (strncmp(G_line, "status", 1) == 0)
-        {
-            G_getStatus = true;
-        }
-        else if (strncmp(G_line, "pixel", 1) == 0)
-        {
-            G_showPixels = !G_showPixels;
-            G_getStatus = true;
-        }
-        else if (strncmp(G_line, "run", 1) == 0)
-        {
-            G_run_usb = true;
-            G_state = 2;
-            sprintf(outStr, "\n\rControl with asdf. a=left, s=sel, d=right, f=fire trig q=quit\n\r> ");
-            usbWrite(outStr);
-        }
-        else if (strncmp(G_line, "delete", 1) == 0)
-        {
-            uint8_t i;
-            for (i=0; i<G_custom_load_index; i++)
-            {
-                G_waveformTable[NUM_WAVEFORMS-1][i] = 0;
-            }
-            G_custom_load_index = 0;
-            usbWrite("\n\rEngineering waveforms erased\n\r");
-        }
-        else if (strncmp(G_line, "wave", 1) == 0)
-        {
-            writeWave();
-        }
-        else if (strncmp(G_line, "load", 1) == 0)
-        {
-            G_custom_load_in_progress = true;
-            G_custom_load_index = 0;
-//            G_usbEcho = false;
-            usbWrite("\n\rEnter one value per line. Press empty-line<Enter> to stop\n\r+ ");
-        }
-        else if (G_custom_load_in_progress && strlen(G_line)==0)
-        {
-            G_custom_load_in_progress = false;
-//            G_usbEcho = true;
-
-            writeWave();
-        }
-        else if (G_custom_load_in_progress && isdigit(G_line[0]))
-        {
-            parseLoadLine(G_line);
-            usbWrite("\n\r+ ");
-        }
-        else if (strncmp(G_line, ":", 1) == 0)
-        {
-            uint8_t checkSumLen;
-            checkSumLen = parseHexLine(G_line, &hexLen, &hexAddr, hexData);
-            sprintf(outStr, "\n\rHex Len=%d, addr=0x%02x%04x checkLen=%d data=", hexLen, (int)(hexAddr >> 16), (int)hexAddr, (int)checkSumLen);
-            uint8_t i = 0;
-            for (i=0; i<hexLen; i++)
-            {
-                sprintf(dataStr, " 0x%02x", hexData[i]);
-                strcat(outStr, dataStr);
-            }
-            strcat(outStr, "\n\r");
-            strcat(outStr, G_prompt);
-            usbWrite(outStr);
-        }
-        else if (strlen(G_line)==0)
-        {
-            strcat(outStr, G_prompt);
-            usbWrite(outStr);
-        }
-        else
-        {
-            sprintf((char*) G_writeBuffer, "\n\rError 1: Invalid command. %s\n\r> ",G_line);
-            usbWrite((char*)G_writeBuffer);
-        }
-        uint16_t i;
-        for (i = 0; i < USB_LINELEN; i++)
-        {
-            G_line[i] = '\0';
-        }
+        strcat(G_outStr, "\n\r");
+        strcat(G_outStr, G_prompt);
+    }
+    else if (G_line[0]=='\0')
+    {
+        strcpy(G_outStr, G_prompt);
+    }
+    else
+    {
+        sprintf(G_outStr, "\n\rError 1: Invalid command. %s\n\r> ",G_line);
+    }
+    uint16_t i;
+    for (i = 0; i < USB_LINELEN; i++)
+    {
+        G_line[i] = '\0';
     }
 }
 
 
-static void usbGetCommandChar()
+static void usbProcessCommandChar()
 {
-    char ch = usbGetChar();
-    if (ch)
+    if (G_waveLoadInProgress)
     {
-        if (ch == 'a')
-        { // left
-            G_left_usb = true;
-        }
-        else if (ch == 's')
+        bool eoln = usbGetLine(G_line, USB_LINELEN);
+        if (eoln)
         {
-            G_sel_usb = true;
+            usbLoadInProgressHandler();
         }
-        else if (ch == 'd')
-        { // right
-            G_right_usb = true;
-        }
-        else if (ch == 'f')
+        return;
+    }    
+    
+    char ch = usbGetChar();
+    if (ch == '\0')
+    {
+        return;
+    }
+    
+    strcpy(G_mostRecentCommand, "");
+    
+    switch (ch)
+    {
+    case 'a':
+        G_usbLeft = true;
+        strcpy(G_mostRecentCommand, "        LEFT      ");
+        break;
+    case 's':
+        G_usbSel = true;
+        strcpy(G_mostRecentCommand, "       SELECT     ");
+        break;
+    case 'd':
+        G_usbRight = true;
+        strcpy(G_mostRecentCommand, "       RIGHT      ");
+        break;
+    case 'e':
+        G_engineeringMode = !G_engineeringMode;
+        strcpy(G_mostRecentCommand, G_engineeringMode ? "    ENG MODE ON   " :
+                                                        "    ENG MODE OFF  " );
+        break;
+    case 'f':
+        G_usbTrig = !G_usbTrig;
+        bool waveTableEmpty = getCurrentWaveTableLen() == 0;
+        if (waveTableEmpty)
         {
-            G_trig_usb = !G_trig_usb;
+            strcpy(G_mostRecentCommand, "  EMPTY WAVEFORM  ");
         }
         else
         {
-            G_state = 1;
-            G_run_usb = false;
-            usbWrite(G_prompt);                   
+            strcpy(G_mostRecentCommand, "      TRIGGER     ");
         }
+        break;
+    case 'c':
+        usbClearWaveTable();
+        break;
+    case 'g':
+        G_showGraphics = !G_showGraphics;
+        strcpy(G_mostRecentCommand, G_showGraphics ? "    GRAPHICS ON   " :
+                                                     "    GRAPHICS OFF  " );
+        break;
+    case 'h':
+        strcpy(G_outStr, G_help);
+        strcpy(G_mostRecentCommand, "     HELP MENU    ");
+        break;
+    case 'l':
+        usbStartLoadingWaveTable();
+        strcpy(G_mostRecentCommand, "     HELP MENU    ");
+        strcpy(G_mostRecentCommand, "     LOAD WAVE    ");
+        break;
+    case 'r':
+        G_refreshScreen = true;
+        strcpy(G_mostRecentCommand, "     REFRESH      ");
+        break;
+    case 'v':
+        usbViewWaveTable();
+        strcpy(G_mostRecentCommand, "  VIEW WAVE TABLE ");
+        break;
+    case 'q':
+        G_state = 1;
+        G_run_usb = false;
+        strcpy(G_outStr, G_prompt);
+        break;
+    default:
+        strcpy(G_outStr, G_prompt);
+        break;
     }
 }
 
@@ -909,17 +1093,34 @@ static void usbHandler()
         success = usbWrite(WELCOME_PROMPT);
         if (success)
         {
-            G_state = 1;
+            G_refreshScreen = true;
+            G_run_usb = true;
+            G_state = 2;
+            strcpy(G_outStr, G_help);
         }
         break;
     case 1:
-        usbGetCommandLine();
+        usbProcessCommandLine();
         break;
-    case 2: // display
-        usbGetCommandChar();
+    case 2: // running
+        usbProcessCommandChar();
         break;
     default:
         break;
+    }
+}
+
+void deviceInitialization()
+{
+    uint8_t i;
+    for (i=0; i<NUM_WAVEFORMS; i++)
+    {
+        G_waveformTable[i][0] = i;
+        G_waveformTable[i][1] = -1;
+    }
+    for (i=NUM_WAVEFORMS-3; i<NUM_WAVEFORMS; i++)
+    {
+        G_waveformTable[i][0] = -1;
     }
 }
 
@@ -927,23 +1128,21 @@ static void usbHandler()
 // ===============================================================
 // ===============================================================
 
-/*
-                         Main application
- */
 int main(void)
 {
     SYSTEM_Initialize(); // Generated by MCC
+    deviceInitialization();
     LATA = 0x0000;
     while (1)
     {
-        spin(100000);
+        spin(G_spinTime);
         usbHandler();
-        triggerHandler();
         bool testInProgress = (G_triggerCountDown > 0);
         bool checkButtons = !testInProgress;
         if (checkButtons) {
             buttonHandler();
         }
+        triggerHandler();
         displayHandler();
     }
     return 1;

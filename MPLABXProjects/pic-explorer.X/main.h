@@ -7,44 +7,52 @@
 #ifndef MAIN_H
 #define	MAIN_H
 
-#define WELCOME_PROMPT "Hello from PIC 'u abc' to unlock. 'h' for help.\n\r> "
+#define WELCOME_PROMPT "Hello from PIC 'p abc' to unlock. 'h' for help.\n\r> "
 #define USB_PASSWORD "abc"
-#define NUM_WAVEFORMS 24
+#define NUM_WAVEFORMS 12
 #define WAVEFORM_SIZE 256
 #define USB_LINELEN 255
 
 static uint8_t G_readBuffer[CDC_DATA_OUT_EP_SIZE];
-static uint8_t G_writeBuffer[CDC_DATA_IN_EP_SIZE];
-static char    G_line[USB_LINELEN] = "";
+char     G_line[USB_LINELEN] = "";
+char     G_outStr[2048];
+char     G_mostRecentCommand[22] = "";
 
 char     G_version[20]  = "1.2.3";
 double   G_voltage      = 17.62;
 double   G_temperature  = 25.0;
 uint8_t  G_mode[2]      = {0, 0};
-uint8_t  G_modeSel      = 0;
-uint8_t  G_config       = 0;
-uint8_t  G_usb          = 0;
-uint8_t  G_trig_usb     = 0;
-uint8_t  G_left_usb     = 0;
-uint8_t  G_right_usb    = 0;
-uint8_t  G_sel_usb      = 0;
-uint8_t  G_state        = 0;
-bool     G_run_usb = false;
-bool     G_getStatus    = false;
-bool     G_showPixels   = false;
-bool     G_usbLocked    = true;
-bool     G_usbEcho      = true;
+uint8_t  G_modeCount[2]  = {3, 3};
+
+const char G_modeNames0[][10] = {" AAAA  ", " BBBBB ", " CCC  ", "CUSTOM ", ""};
+const char G_modeNames1[][10] = {" EEEEEE ", " FFFFFFF", "   GGG  ", ""};
+uint8_t  G_modeSel          = 0;
+uint8_t  G_config           = 0;
+uint8_t  G_usb              = 0;
+uint8_t  G_usbTrig          = 0;
+uint8_t  G_usbLeft          = 0;
+uint8_t  G_usbRight         = 0;
+uint8_t  G_usbSel           = 0;
+uint8_t  G_state            = 0;
+bool     G_run_usb          = false;
+bool     G_refreshScreen    = false;
+bool     G_showGraphics     = false;
+bool     G_usbLocked        = false;
+bool     G_usbEcho          = true;
 bool     G_selfTestResult   = true; // true = pass; false = fail
 uint8_t  G_triggerCountDown = 0;
-uint8_t  G_triggerCountDownMax = 5; 
-uint8_t  G_custom_load_index = 0;
-bool     G_custom_load_in_progress = false;
-bool     G_custom_loaded = false;
+uint8_t  G_triggerCountDownMax = 5;
+bool     G_engineeringMode  = false;
+uint8_t  G_customLoadIndex  = 0;
+bool     G_waveLoadInProgress = false;
+bool     G_customLoaded     = false;
+bool     G_forceDisplayUpdate = false;
+uint32_t G_spinTime         = 10000;
     
-uint16_t G_waveformTable[NUM_WAVEFORMS][WAVEFORM_SIZE];
+int16_t G_waveformTable[NUM_WAVEFORMS][WAVEFORM_SIZE];
 
 char G_screen[13][22] = {
-    "CHARGE:       100%\n\r", // 0
+    "BATTERY:      100%\n\r", // 0
     "SELF TEST:    PASS\n\r", // 1
     "                  \n\r", // 2
     "    SIGNAL OFF    \n\r", // 3
@@ -75,47 +83,30 @@ char G_screenPrev[13][22] = {
     "> "
 };
 
-//  "123456789012345678", // -
-//char G_screen[13][22] = {
-//    "CHARGE:       100%\n\r", // 0
-//    "SELF TEST:    PASS\n\r", // 1
-//    "                  \n\r", // 2
-//    "    SIGNAL OFF    \n\r", // 3
-//    "/-< >             \n\r", // 4
-//    "<      AAAA      >\n\r", // 5
-//    "ABCDEFGHIJKLMNOPQR\n\r", // 6
-//    "<     EEEEEEE    >\n\r", // 7
-//    "STUVWXYZ0123456789\n\r", // 8
-//    "  P/N: PN123-01   \n\r", // 9
-//    "  F/W: FW123-01   \n\r", // 10
-//    "      USB ON      \n\r", // 11
-//    "> "
-//};
-
 char *G_screenBatteryLevel = &(G_screen[0][14]);
 char *G_screenPassFail     = &(G_screen[1][14]);
 char *G_screenSignal       = &(G_screen[3][11]);
 char *G_screenMode0        = &(G_screen[5][7]);
 char *G_screenMode1        = &(G_screen[7][5]);
-char *G_screenUSB          = &(G_screen[11][6]);
+char *G_screenUSB          = &(G_screen[11][0]);
 
 char G_prompt[] = "\n\r> ";
 char G_help[] = "\n\r"
-        "Help Menu\n\r"
-        "-----------------\n\r"
-        "help   (h)\n\r"
-        "lock   (lock)\n\r"
-        "unlock [password](u)\n\r"
-        "load   (l) - load table\n\r"
-        "delete (d) - delete table\n\r"
-        "pixel  (p) - toggle between pixel and text display\n\r"
-        "run    (r) - run remotely over usb\n\r"
-        "status (s) - show status\n\r"
-        "wave   (w) - show current waveform\n\r"
-        "> ";
-
-const char G_modes0[][6+1] = {" AAAA ", "BBBBB ", " CCC ", "DDDDDD"};
-const char G_modes1[][8+1] = {" EEEEEE ", " FFFFFFF", "   GGG  "};
+    "Help Menu\n\r"
+    "-------------------------------------------\n\r"
+    "left     (a) - Emulate left button\n\r"
+    "select   (s) - Emulate select button\n\r"
+    "right    (d) - Emulate right button\n\r"
+    "trigger  (f) - Emulate trigger\n\r"
+    "-------------------------------------------\n\r"
+    "clear    (c) - Clear current custom waveform table\n\r"
+    "eng      (e) - Toggle engineering mode\n\r"
+    "graphics (g) - Toggle between graphics/text display\n\r"
+    "help     (h) - Display this help message\n\r"
+    "load     (l) - Load wave table\n\r"
+    "refresh  (r) - Refresh screen\n\r"
+    "view     (v) - View current waveform table\n\r"
+    "> ";
 
 enum button_t {NONE=0, RIGHTARROW=1, LEFTARROW=2, SELECT=4, TRIGGER=8};
 
@@ -167,10 +158,6 @@ const uint8_t G_font[][8+1] = {
 
 enum {LETTER_A=0, DIGIT_0=26, SPACE=36, LT=37, GT=38, PERCENT=39, COLON=40,
       SLASH=41, DASH=42};
-
-uint16_t G_waveforms[NUM_WAVEFORMS][WAVEFORM_SIZE];
-
-
 
 #endif	/* MAIN_H */
 
