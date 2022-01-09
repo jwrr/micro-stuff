@@ -61,24 +61,60 @@ int main(void)
     while (1)
     {
         
-        for (i=0; i<1000000; i++);
-        if ( RE2_T3_GetValue())
-        {
-            RE8_LED1_Toggle();
-        }
-        else
+        for (i=0; i<100000; i++);
+        
+        if (!RG0_LEFT_GetValue())
         {
             RE8_LED1_SetHigh();
+            RG13_LED2_SetLow();            
         }
-        
-        if (RA0_T2_GetValue())
+        else if (!RF2_RIGHT_GetValue())
         {
+            RE8_LED1_SetLow();
+            RG13_LED2_SetHigh(); 
+        }
+        else if (!RD6_CENTER_GetValue())
+        {
+            RE8_LED1_SetHigh();
+            RG13_LED2_SetHigh();
+        }
+        else if (!RA0_T2_GetValue())
+        {
+            RE8_LED1_Toggle();
             RG13_LED2_Toggle();
+        }
+        else if (!RE2_T3_GetValue())
+        {
+            RE8_LED1_Toggle();
+            if (RE8_LED1_GetValue())
+            {
+                RG13_LED2_Toggle();
+            }
         }
         else
         {
-            RG13_LED2_SetHigh();
+            RE8_LED1_SetLow();
+            RG13_LED2_SetLow();            
         }
+
+        
+//        if ( RE2_T3_GetValue())
+//        {
+//            RE8_LED1_Toggle();
+//        }
+//        else
+//        {
+//            RE8_LED1_SetHigh();
+//        }
+//        
+//        if (RA0_T2_GetValue())
+//        {
+//            RG13_LED2_Toggle();
+//        }
+//        else
+//        {
+//            RG13_LED2_SetHigh();
+//        }
     }
 
     return 1;
