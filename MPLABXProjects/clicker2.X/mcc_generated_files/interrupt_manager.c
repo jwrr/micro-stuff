@@ -52,5 +52,11 @@
 */
 void INTERRUPT_Initialize (void)
 {
+    //    MICI: MI2C3 - I2C3 Master Events
+    //    Priority: 1
+        IPC17bits.MI2C3IP = 1;
+    //    SICI: SI2C3 - I2C3 Slave Events
+    //    Priority: 1
+        IPC17bits.SI2C3IP = 1;
 
 }

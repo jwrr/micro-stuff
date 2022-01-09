@@ -101,14 +101,16 @@
 #include "pin_manager.h"
 #include "clock.h"
 #include "system.h"
+#include "i2c3.h"
 #include "interrupt_manager.h"
 #include "traps.h"
 
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    INTERRUPT_Initialize();
     CLOCK_Initialize();
+    INTERRUPT_Initialize();
+    I2C3_Initialize();
 }
 
 /**
