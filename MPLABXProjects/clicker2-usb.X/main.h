@@ -13,7 +13,7 @@
 #define WAVEFORM_SIZE 256
 #define USB_LINELEN 255
 
-static uint8_t G_readBuffer[CDC_DATA_OUT_EP_SIZE];
+uint8_t  G_readBuffer[CDC_DATA_OUT_EP_SIZE];
 char     G_line[USB_LINELEN] = "";
 char     G_outStr[2048];
 char     G_mostRecentCommand[22] = "";
@@ -54,11 +54,11 @@ int16_t G_waveformTable[NUM_WAVEFORMS][WAVEFORM_SIZE];
 char G_screen[13][22] = {
     "BATTERY:      100%\n\r", // 0
     "TEMPERATURE:   25C\n\r", // 1
-    "SELF TEST:    PASS\n\r", // 1
-    "    SIGNAL OFF    \n\r", // 3
-    "                  \n\r", // 4
-    "<      AAAA      >\n\r", // 5
-    "                  \n\r", // 6
+    "SELF TEST:    PASS\n\r", // 2
+    "                  \n\r", // 3
+    "    SIGNAL OFF    \n\r", // 4
+    "                  \n\r", // 5
+    "<      AAAA      >\n\r", // 6
     "<     EEEEEEE    >\n\r", // 7
     "                  \n\r", // 8
     "  P/N: PN123-01   \n\r", // 9
@@ -86,8 +86,8 @@ char G_screenPrev[13][22] = {
 char *G_screenBatteryLevel = &(G_screen[0][14]);
 char *G_screenTemperature  = &(G_screen[1][14]);
 char *G_screenPassFail     = &(G_screen[2][14]);
-char *G_screenSignal       = &(G_screen[3][11]);
-char *G_screenMode0        = &(G_screen[5][7]);
+char *G_screenSignal       = &(G_screen[4][11]);
+char *G_screenMode0        = &(G_screen[6][7]);
 char *G_screenMode1        = &(G_screen[7][5]);
 char *G_screenUSB          = &(G_screen[11][0]);
 

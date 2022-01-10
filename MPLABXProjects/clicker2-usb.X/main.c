@@ -60,6 +60,8 @@
 #include "mcc_generated_files/i2c3.h"
 #include "main.h"
 
+//#define EXP16
+#define CLICKER2
 #define I2C_ADDR_TC74  0X4D  // A5 Default
 
 
@@ -260,15 +262,25 @@ void spin(uint32_t cnt)
 
 static bool isPressed(uint8_t button)
 {
-    bool button_prev = (bool)(~PORTD & 0x0040); // RD6
-    bool button_sel  = (bool)(~PORTD & 0x0080); // RD7
-    bool button_next = (bool)(~PORTA & 0x0080); // RA7
-    bool button_trig = (bool)(~PORTD & 0x2000); // RD13
+#ifdef EXP16
+    bool button_left    = (bool)(~PORTD & 0x0040); // RD6
+    bool button_center  = (bool)(~PORTD & 0x0080); // RD7
+    bool button_right   = (bool)(~PORTA & 0x0080); // RA7
+    bool button_trig    = (bool)(~PORTD & 0x2000); // RD13
+#endif
+    
+#ifdef CLICKER2
+    bool button_left    = (bool)(~PORTG & 0x0001); // RG0
+    bool button_center  = (bool)(~PORTD & 0x0040); // RD6
+    bool button_right   = (bool)(~PORTF & 0x0004); // RF2
+    bool button_trig    = (bool)(~PORTA & 0x0001); // RA0
+#endif
+    
     switch (button)
     {
-    case LEFTARROW: return button_prev;
-    case RIGHTARROW: return button_next;
-    case SELECT:  return button_sel;
+    case LEFTARROW: return button_left;
+    case RIGHTARROW: return button_right;
+    case SELECT:  return button_center;
     case TRIGGER: return button_trig;
     default:   return false;
     }
@@ -603,15 +615,15 @@ static void displayHandler()
     
     if (G_modeSel == 0)
     {
-        G_screen[5][0]  = '<';
-        G_screen[5][17] = '>';
+        G_screen[6][0]  = '<';
+        G_screen[6][17] = '>';
         G_screen[7][0]  = ' ';
         G_screen[7][17] = ' ';        
     }
     else
     {
-        G_screen[5][0]  = ' ';
-        G_screen[5][17] = ' ';
+        G_screen[6][0]  = ' ';
+        G_screen[6][17] = ' ';
         G_screen[7][0]  = '<';
         G_screen[7][17] = '>';
     }
