@@ -102,36 +102,37 @@ bool TC74_readTemp(bool start, int8_t *t)
     bool done = false;
     *t = TC74_temp;
     
-    if (TC74_state == 0)
+    switch (TC74_state)
     {
+    case 0:
         if (start)
         {
             I2C3_MasterWrite( &TC74_cmd, len, I2C_ADDR_TC74, &TC74_status);
             TC74_state = 1;
         }
-    }
-    else if (TC74_state == 1)
-    {
+        break;
+    case 1:
         if (TC74_status != I2C3_MESSAGE_PENDING) {
             TC74_state++;
         }
-    }
-    else if (TC74_state == 2)
-    {
+        break;
+    case 2:
         I2C3_MasterRead( &TC74_temp, len, I2C_ADDR_TC74, &TC74_status);
         TC74_state++;
-    }
-    else if (TC74_state == 3)
-    {
+        break;
+    case 3:
         if (TC74_status != I2C3_MESSAGE_PENDING) {
             TC74_state++;
         }
-    }
-    else // TC_state == 4
-    {
+        break;
+    case 4:
         TC74_state = 0;
         *t = (int8_t)(TC74_temp);
         done = true;
+        break;
+    default:
+        TC74_state = 0;
+        break;
     }
     return done;
 }
