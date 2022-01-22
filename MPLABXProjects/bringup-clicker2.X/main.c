@@ -80,7 +80,7 @@
 //#define TRIGGER_BUTTON 'A',0
 #endif
     
-#define GPIO_IsPressed(BUTTON) (!GPIO_Get(BUTTON))
+#define GPIO_isPressed(BUTTON) (!GPIO_get(BUTTON))
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -98,18 +98,15 @@
 #include "mcc_generated_files/spi2.h"
 #include "mcc_generated_files/tmr3.h"
 #include "tc74.h"
-
-void FLASH_writePages(uint32_t writeData[], uint32_t dataSize);
-uint32_t FLASH_read_uint32(uint32_t flashOffset);
-
+#include "flash_wrapper.h"
 
 #define LINELEN 255
 char G_rxLine[LINELEN-10];
 char G_txLine[LINELEN];
 uint8_t DISP_pixLine[G_txtCharPerLine];
 
-uint8_t USB_Print(char *str);
-void FONT_GetPixLine(uint8_t pixLineIndex, uint8_t *pixLine);
+uint8_t USB_print(char *str);
+void FONT_getPixLine(uint8_t pixLineIndex, uint8_t *pixLine);
 
 
 // ===============================================================
@@ -163,7 +160,7 @@ bool USB_isUp()
     return true;
 } // usbUp
 
-uint8_t USB_Print(char *str)
+uint8_t USB_print(char *str)
 {
     uint16_t len = strlen(str);
     char *newTail = USB_writeBufferTail + len;
@@ -175,17 +172,17 @@ uint8_t USB_Print(char *str)
     return 0;
 }
 
-uint8_t USB_PrintChar(char c)
+uint8_t USB_printChar(char c)
 {
     char str[2] = "";
     uint8_t i = 0;
     str[i++] = c;
     str[i] = '\0';
-    uint8_t success = USB_Print(str);
+    uint8_t success = USB_print(str);
     return success;
 }
 
-void USB_PrintFontBits(char pixForOneLineOfChar)
+void USB_printFontBits(char pixForOneLineOfChar)
 {
     // The pixBitIndex loop is only for output to USB
     uint8_t pixBitIndex;
@@ -197,35 +194,35 @@ void USB_PrintFontBits(char pixForOneLineOfChar)
         bool bitIsOn = (pixForOneLineOfChar & mask) > 0;
         char asciiSquare = (char)219;
         pixChar[0] = bitIsOn ? asciiSquare : ' ';
-        USB_Print(pixChar);
+        USB_print(pixChar);
     }
 }
 
-void USB_PrintGraphicsLineHeader(bool showGraphics)
+void USB_printGraphicsLineHeader(bool showGraphics)
 {
     if (showGraphics)
     {
-        USB_PrintLine("");
+        USB_printLine("");
     }
 }
 
-void USB_PrintGraphicsLinePixels(bool showGraphics, uint8_t pixVal)
+void USB_printGraphicsLinePixels(bool showGraphics, uint8_t pixVal)
 {
     if (showGraphics)
     {
-        USB_PrintFontBits(pixVal);
+        USB_printFontBits(pixVal);
     }
 }
 
-void USB_PrintGraphicsLineTrailer(bool showGraphics)
+void USB_printGraphicsLineTrailer(bool showGraphics)
 {
     if (showGraphics)
     {
-        USB_PrintLine("");
+        USB_printLine("");
     }
 }
 
-uint8_t USB_FlushPrintBuffer()
+uint8_t USB_flushPrintBuffer()
 {
     if (USB_isUp()) {
         CDCTxService();
@@ -250,7 +247,7 @@ uint8_t USB_FlushPrintBuffer()
     return 1; // success
 }
 
-static bool USB_ReadLine(char line[], uint16_t maxLen, bool echo)
+static bool USB_readLine(char line[], uint16_t maxLen, bool echo)
 {
     static uint8_t readBufferPos = 0;
     static uint8_t readBufferLen = 0;
@@ -307,7 +304,7 @@ static bool USB_ReadLine(char line[], uint16_t maxLen, bool echo)
     
     if (echo)
     {
-        USB_Print(&(line[lineposPrev]));
+        USB_print(&(line[lineposPrev]));
     }
     
     return eoln;
@@ -316,7 +313,7 @@ static bool USB_ReadLine(char line[], uint16_t maxLen, bool echo)
 // ===============================================================
 // GPIO
 
-void GPIO_Set(char port, uint8_t pos, bool value)
+void GPIO_set(char port, uint8_t pos, bool value)
 {
     uint16_t mask1 = 1 << pos;
     uint16_t mask0 = ~mask1;
@@ -333,7 +330,7 @@ void GPIO_Set(char port, uint8_t pos, bool value)
     }
 }
 
-void GPIO_Toggle(char port, uint8_t pos)
+void GPIO_toggle(char port, uint8_t pos)
 {
     uint16_t massk = 1 << pos;
     switch (port)
@@ -350,7 +347,7 @@ void GPIO_Toggle(char port, uint8_t pos)
 }
 
 // bool GPIO_Get(char port, uint8_t pos)
-bool GPIO_Get(char *pin)
+bool GPIO_get(char *pin)
 {
     uint8_t pinLen = strlen(pin);
     if (pinLen < 3) return false;
@@ -373,10 +370,10 @@ bool GPIO_Get(char *pin)
 }
 
 // l GPIO_EdgeDetect(char port, uint8_t pos, bool *val, uint8_t whichEdge)
-bool GPIO_EdgeDetect(char *pin, bool *val, uint8_t whichEdge)
+bool GPIO_edgeDetect(char *pin, bool *val, uint8_t whichEdge)
 {
     bool prevVal = *val;
-    bool newVal = GPIO_Get(pin);
+    bool newVal = GPIO_get(pin);
     *val = newVal;
     bool falling = whichEdge == 0;
     bool rising  = whichEdge == 1;
@@ -393,7 +390,7 @@ bool GPIO_EdgeDetect(char *pin, bool *val, uint8_t whichEdge)
 
 #define DAC_CS 'E',4
 
-bool DAC_Write(bool start, uint16_t value)
+bool DAC_write(bool start, uint16_t value)
 {
     uint16_t rdata;
     uint16_t i = 0;
@@ -401,9 +398,9 @@ bool DAC_Write(bool start, uint16_t value)
     if (start)
     {
         while (SPI2STATLbits.SPITBF == true);
-        GPIO_Set(DAC_CS, 1);
+        GPIO_set(DAC_CS, 1);
         for (i = 0; i < 10; i++);
-        GPIO_Set(DAC_CS, 0);
+        GPIO_set(DAC_CS, 0);
         for (i = 0; i < 10; i++);
         SPI2BUFL = value;
         while (SPI2STATLbits.SPIRBE == true);
@@ -429,7 +426,7 @@ uint8_t FONT_pixLineIndex = 0;
 uint8_t DISP_frameCount = 0;
 bool    DISP_busy = false;
 
-uint8_t DISP_SendByteSPI(uint8_t val)
+uint8_t DISP_sendByteSPI(uint8_t val)
 {
     uint8_t cnt;
     for (cnt = 0; cnt < DISP_timeout; cnt++)
@@ -449,19 +446,19 @@ uint8_t DISP_SendByteSPI(uint8_t val)
     return rdata;
 }
  
-void DISP_DrawPixLine(uint8_t addr, uint8_t pixels[])
+void DISP_drawPixLine(uint8_t addr, uint8_t pixels[])
 {
     uint8_t i = 0;
-    DISP_SendByteSPI(addr);
+    DISP_sendByteSPI(addr);
     for (i = 0; i < DISP_screenWidthInBytes; i++)
     {
-        DISP_SendByteSPI(pixels[i]);
+        DISP_sendByteSPI(pixels[i]);
     }
-    DISP_SendByteSPI(0x00);
+    DISP_sendByteSPI(0x00);
 }
 
 
-uint8_t DISP_ReverseBits(uint8_t val)
+uint8_t DISP_reverseBits(uint8_t val)
 {
     uint8_t reverseVal = 0;
     uint8_t i;
@@ -478,49 +475,49 @@ uint8_t DISP_ReverseBits(uint8_t val)
 }
 
 // SHARP 144x168 DISPLAY (LS013B7DH05)
-void DISP_WriteFrame(bool start)
+void DISP_writeFrame(bool start)
 {
     if (start && (DISP_pixLineIndex == 0))
     {
         DISP_busy = true;
         DISP_pixLineIndex = 1;
         FONT_pixLineIndex = 0;
-        GPIO_Set(DISP_CS, 1);
+        GPIO_set(DISP_CS, 1);
         DISP_vcom = !DISP_vcom;
         DISP_cmd = DISP_vcom ? 0xc0 : 0x80;
-        DISP_SendByteSPI(DISP_cmd);
+        DISP_sendByteSPI(DISP_cmd);
     }
     
     if (DISP_pixLineIndex > 0 && DISP_pixLineIndex <= 168)
     {
 //            FONT_isAllSpaces
-        FONT_GetPixLine(FONT_pixLineIndex, DISP_pixLine);
-        if (FONT_IsStartingBlankLine(FONT_pixLineIndex))
+        FONT_getPixLine(FONT_pixLineIndex, DISP_pixLine);
+        if (FONT_isStartingBlankLine(FONT_pixLineIndex))
         {
             FONT_pixLineIndex += 11; // Reduce height of blank lines
         }
         FONT_pixLineIndex++;
-        uint8_t reverseAddr = DISP_ReverseBits(DISP_pixLineIndex);
-        DISP_DrawPixLine(reverseAddr, DISP_pixLine);
+        uint8_t reverseAddr = DISP_reverseBits(DISP_pixLineIndex);
+        DISP_drawPixLine(reverseAddr, DISP_pixLine);
         DISP_pixLineIndex++;
     }
     else if (DISP_pixLineIndex > 168)
     {
         DISP_busy = false;
-        DISP_SendByteSPI(0x00);
-        GPIO_Set(DISP_CS, 0);
+        DISP_sendByteSPI(0x00);
+        GPIO_set(DISP_CS, 0);
         DISP_pixLineIndex = 0;
         FONT_pixLineIndex = 0;
         DISP_frameCount++;
     }
 }
 
-void DISP_Append8BitsToPixLine(uint8_t pixVal, uint8_t *pixLine, uint8_t index)
+void DISP_append8BitsToPixLine(uint8_t pixVal, uint8_t *pixLine, uint8_t index)
 {
     if (index < G_txtCharPerLine)
     {
         pixLine[index] = pixVal;
-        USB_PrintGraphicsLinePixels(G_showGraphics, pixVal);
+        USB_printGraphicsLinePixels(G_showGraphics, pixVal);
     }
 }
 
@@ -528,7 +525,7 @@ void DISP_Append8BitsToPixLine(uint8_t pixVal, uint8_t *pixLine, uint8_t index)
 // ==========================================================
 // FONT
 
-uint8_t FONT_CharToIndex(char ch)
+uint8_t FONT_charToIndex(char ch)
 {
     if (islower(ch))
     {
@@ -547,23 +544,23 @@ uint8_t FONT_CharToIndex(char ch)
     return fontIndex;
 }
 
-uint8_t FONT_GetTxtLineNumber(uint8_t pixLineNumber)
+uint8_t FONT_getTxtLineNumber(uint8_t pixLineNumber)
 {
     return pixLineNumber / G_charHeight;
 }
 
-void FONT_GetPixLine(uint8_t pixLineNumber, uint8_t *pixLine)
+void FONT_getPixLine(uint8_t pixLineNumber, uint8_t *pixLine)
 {
-    uint8_t txtLineNumber = FONT_GetTxtLineNumber(pixLineNumber);
+    uint8_t txtLineNumber = FONT_getTxtLineNumber(pixLineNumber);
     uint8_t fontLineIndex = (pixLineNumber % G_charHeight) + 1;
     bool isSpaceBetweenLines = (fontLineIndex >= G_fontHeight);
     char *txtLine = G_txtScreen[txtLineNumber];
-    USB_PrintGraphicsLineHeader(G_showGraphics);
+    USB_printGraphicsLineHeader(G_showGraphics);
     uint16_t txtLineIndex = 0;
     for (txtLineIndex = 0; txtLine[txtLineIndex] != '\0'; txtLineIndex++)
     {
         char ch = txtLine[txtLineIndex];
-        uint8_t fontIndex = FONT_CharToIndex(ch);
+        uint8_t fontIndex = FONT_charToIndex(ch);
         uint8_t pixForOneLineOfChar = 0;
         if (!isSpaceBetweenLines)
         {
@@ -573,14 +570,14 @@ void FONT_GetPixLine(uint8_t pixLineNumber, uint8_t *pixLine)
             pixForOneLineOfChar = ~pixForOneLineOfChar;
         }
         uint8_t pixLineByteIndex = txtLineIndex;
-        DISP_Append8BitsToPixLine(pixForOneLineOfChar, pixLine, pixLineByteIndex);
+        DISP_append8BitsToPixLine(pixForOneLineOfChar, pixLine, pixLineByteIndex);
     }
-    USB_PrintGraphicsLineTrailer(G_showGraphics);
+    USB_printGraphicsLineTrailer(G_showGraphics);
 }
 
-bool FONT_IsTxtLineAllSpaces(uint8_t pixLineNumber)
+bool FONT_isTxtLineAllSpaces(uint8_t pixLineNumber)
 {
-    uint8_t txtLineNumber = FONT_GetTxtLineNumber(pixLineNumber);
+    uint8_t txtLineNumber = FONT_getTxtLineNumber(pixLineNumber);
     char *txtLine = G_txtScreen[txtLineNumber];
     uint8_t ii;
     for (ii=0; ii < G_txtCharPerLine; ii++)
@@ -590,10 +587,10 @@ bool FONT_IsTxtLineAllSpaces(uint8_t pixLineNumber)
     return true;
 }
 
-bool FONT_IsStartingBlankLine(uint8_t pixLineNumber)
+bool FONT_isStartingBlankLine(uint8_t pixLineNumber)
 {
     bool isStartingBlankLine = false;
-    if (FONT_IsTxtLineAllSpaces(pixLineNumber))
+    if (FONT_isTxtLineAllSpaces(pixLineNumber))
     {
         uint8_t fontLineIndex = (pixLineNumber % G_charHeight) + 1;
         if (fontLineIndex == 1)
@@ -612,7 +609,7 @@ uint8_t TC74_temp = 0;
 uint8_t TC74_cmd = 0; // read temperature. 1 = standby
 I2C3_MESSAGE_STATUS TC74_status;
 
-bool TC74_ReadTemp(bool start, int8_t *t)
+bool TC74_readTemp(bool start, int8_t *t)
 {
     const uint8_t len = 1;
     bool done = false;
@@ -653,7 +650,7 @@ bool TC74_ReadTemp(bool start, int8_t *t)
     return done;
 }
 
-void Spin(uint32_t cnt)
+void spin(uint32_t cnt)
 {
     while (cnt--);
 }
@@ -683,7 +680,7 @@ void Spin(uint32_t cnt)
 //}
 
 uint16_t ADC_conversionCnt = 0;
-bool ADC_ReadVoltage(bool start, int16_t *v)
+bool ADC_readVoltage(bool start, int16_t *v)
 {
     bool done = false;
     
@@ -744,7 +741,7 @@ char *center(uint8_t width, char centered[], const char uncentered[])
     return centered;
 }   
 
-void HandleCenterButton()
+void handleCenterButton()
 {
     G_modeSel = (G_modeSel + 1) % 2;
     if (G_modeSel == 0) {
@@ -765,16 +762,24 @@ void HandleCenterButton()
 void updateMode(uint8_t mode)
 {
     uint8_t wid = DISP_screenWidthInChar-2;
+    center(wid, &(G_txtScreen[G_screenLineMode0][1]), G_modeNames0[G_mode[0]]);
+    center(wid, &(G_txtScreen[G_screenLineMode1][1]), G_modeNames1[G_mode[1]]);
     if (G_modeSel == 0) {
-        center(wid, &(G_txtScreen[G_screenLineMode0][1]), G_modeNames0[mode]);
+        G_txtScreen[G_screenLineMode0][0] = '<';
+        G_txtScreen[G_screenLineMode1][0] = ' ';
+        G_txtScreen[G_screenLineMode0][G_txtCharPerLine - 1] = '>';
+        G_txtScreen[G_screenLineMode1][G_txtCharPerLine - 1] = ' ';        
     }
     else
     {
-        center(wid, &(G_txtScreen[G_screenLineMode1][1]), G_modeNames1[mode]);
-    }    
+        G_txtScreen[G_screenLineMode0][0] = ' ';
+        G_txtScreen[G_screenLineMode1][0] = '<';
+        G_txtScreen[G_screenLineMode0][G_txtCharPerLine - 1] = ' ';
+        G_txtScreen[G_screenLineMode1][G_txtCharPerLine - 1] = '>';          
+    }
 }
 
-void HandleLeftButton()
+void handleLeftButton()
 {
     if (G_mode[G_modeSel] == 0)
     {
@@ -784,7 +789,7 @@ void HandleLeftButton()
     updateMode(G_mode[G_modeSel]);
 }
 
-void HandleRightButton()
+void handleRightButton()
 {
     G_mode[G_modeSel]++;
     if (G_mode[G_modeSel] >= G_modeSize[G_modeSel])
@@ -805,9 +810,9 @@ bool USB_triggerPressedPrev = false;
 //    if (G_modeSel == 0) {
 //        center(&(G_txtScreen[G_screenLineMode0][1]), G_modeNames0[mode], wid);
 
-void HandleTrigger(void)
+void handleTrigger(void)
 {
-    bool triggerVal      = GPIO_Get(TRIGGER_BUTTON);
+    bool triggerVal      = GPIO_get(TRIGGER_BUTTON);
     bool triggerPressed  = !triggerVal;
     bool triggerEdge     = !G_triggerPressedPrev && triggerPressed;
     G_triggerPressedPrev = triggerPressed;
@@ -825,7 +830,7 @@ void HandleTrigger(void)
         }
         else if (triggerPressed || USB_triggerPressed)
         {
-            center(DISP_screenWidthInChar, G_txtScreen[G_screenLineSignal], "PAUSE AND RE-PRESS");
+            center(DISP_screenWidthInChar, G_txtScreen[G_screenLineSignal], "RELEASE / RE-PRESS");
             G_displayStart = true;
 //            USB_PrintLinePrompt("Trigger over-ride. Release, pause and press again");
         }
@@ -845,7 +850,6 @@ void HandleTrigger(void)
     }
     else
     {
-        USB_triggerPressed = false;
         G_triggerFiring = false;
         G_triggerCountDown = 0;
         center(DISP_screenWidthInChar, G_txtScreen[G_screenLineSignal], "SIGNAL OFF");
@@ -856,7 +860,7 @@ void HandleTrigger(void)
 
 
 
-void DAC_SPI2_Initialize(void)
+void DAC_SPI2_initialize(void)
 {
     // AUDEN disabled; FRMEN disabled; AUDMOD I2S; FRMSYPW One clock wide; AUDMONO stereo; FRMCNT 0; MSSEN disabled; FRMPOL disabled; IGNROV disabled; SPISGNEXT not sign-extended; FRMSYNC disabled; URDTEN disabled; IGNTUR disabled; 
     SPI2CON1H = 0x00;
@@ -891,11 +895,11 @@ void DAC_writeSPI(bool start, uint16_t value)
     if (start)
     {
         while (SPI2STATLbits.SPITBF == true);
-        DAC_SPI2_Initialize(); // Mode 0, 16-Bit
+        DAC_SPI2_initialize(); // Mode 0, 16-Bit
 
-        GPIO_Set(DAC_CS, 1);
+        GPIO_set(DAC_CS, 1);
         for (i = 0; i < 10; i++);
-        GPIO_Set(DAC_CS, 0);
+        GPIO_set(DAC_CS, 0);
         for (i = 0; i < 10; i++);
 
         SPI2BUFL = value;
@@ -915,7 +919,13 @@ bool timeMonitor = false;
 uint16_t cnt500usec = 0;
 uint16_t cntSeconds = 0;
 
-void TMR3_CallBack(void)
+uint8_t getCurrentTableIndex()
+{
+    uint8_t tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
+    return tableIndex;
+}
+
+void TMR3_callBack(void)
 {
     if (G_triggerFiring)
     {
@@ -932,19 +942,33 @@ void TMR3_CallBack(void)
     
     if (cnt500usec >= 2000)
     {
-        uint8_t tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
+        uint8_t tableIndex = getCurrentTableIndex();
         p_waveformSampleBase = G_waveformTable[tableIndex];
         p_waveformSample = p_waveformSampleBase;
-        HandleTrigger();
+        handleTrigger();
         cnt500usec = 0;
         cntSeconds++;
         uint16_t tm3TimerCount = TMR3_Counter16BitGet();
         
         if (timeMonitor)
         {
-            USB_PrintfLinePrompt("TMR3 callback = %d seconds %d", cntSeconds, tm3TimerCount);
+            USB_printfLinePrompt("TMR3 callback = %d seconds %d", cntSeconds, tm3TimerCount);
         }
     }
+}
+
+uint16_t getTableLen16(int16_t *table)
+{
+    uint16_t maxLen = 256;
+    uint16_t len = 0;
+    for (; len < maxLen; len++)
+    {
+        if (table[len] == -1)
+        {
+            return len+1;
+        }
+    }
+    return maxLen;
 }
 
 bool isnum(char *s)
@@ -957,6 +981,21 @@ bool isnum(char *s)
     }
     return true;
 }
+
+    
+int stringInArray(char *str, const char *strArray[], int len)
+{
+    int i = 0;
+    for (; i < len; i++)
+    {
+        if (strcmp(str, strArray[i]) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 
 char MAIN_cmd[USB_LINELEN] = "";
 
@@ -993,78 +1032,38 @@ int main(void)
 
     bool loadInProgress = false;
     
-    
-    int flashi;
-    const uint32_t flashWdataSize = 3*1024; // 3 pages
-    uint32_t flashWdata[flashWdataSize];
-    for (flashi=0; flashi < flashWdataSize; flashi++)
-    {
-        flashWdata[flashi] = 0xAA00 + flashi;
-    }
-    
-    USB_PrintLinePrompt("Before flash write");
-    FLASH_writePages(flashWdata, flashWdataSize);
-    USB_PrintLinePrompt("After flash write");
-    
-    USB_PrintLinePrompt("Before flash read");
-    uint32_t flashRdata;
-    uint16_t failCnt = 0;
-    for (flashi=0; flashi < flashWdataSize; flashi++)
-    {
-        flashRdata = FLASH_read_uint32(flashi);
-        bool fail = (flashRdata != flashWdata[flashi]);
-        if (fail)
-        {
-            failCnt++;
-            if (failCnt < 10)
-            {
-            USB_PrintfLine("Fail: addr = %d, actual = %04x expected = %04x", flashi, (int)flashRdata, (int)flashWdata[flashi]);
-            }
-            else if (failCnt == 11)
-            {
-            USB_PrintfLine("Fail: addr = %d, actual = %04x expected = %04x. Additonal errors suppressed", flashi, (int)flashRdata, (int)flashWdata[flashi]);
-            }
-        }
-    }
-    if (failCnt == 0)
-    {
-        USB_PrintLinePrompt("Flash Test Pass");
-    }
-    else
-    {
-        USB_PrintfLinePrompt("Flash Test FAIL. failCnt = %d", failCnt);
-    }
-    
-    TMR3_SetInterruptHandler(&TMR3_CallBack);
+    FLASH_test();
+ 
+    TMR3_SetInterruptHandler(&TMR3_callBack);
     TMR3_Start();
     while (1)
     {
         cnt = (cnt + 1) % 3000;
         // called from interrupt HandleTrigger();
         
-        if (GPIO_EdgeDetect(LEFT_BUTTON, &leftButton, fallingEdge))
+        if (GPIO_edgeDetect(LEFT_BUTTON, &leftButton, fallingEdge))
         {
-            USB_PrintLinePrompt("Left");
-            HandleLeftButton();
+            USB_printLinePrompt("Left");
+            handleLeftButton();
             G_displayStart = true;
             adcStart = true; // FIXME for debug only
         }
 
-        if (GPIO_EdgeDetect(RIGHT_BUTTON, &rightButton, fallingEdge))
+        if (GPIO_edgeDetect(RIGHT_BUTTON, &rightButton, fallingEdge))
         {
-            USB_PrintLinePrompt("Right");
-            HandleRightButton();
+            USB_printLinePrompt("Right");
+            handleRightButton();
             G_displayStart = true;
         }
 
-        if (GPIO_EdgeDetect(CENTER_BUTTON, &centerButton, fallingEdge))
+        if (GPIO_edgeDetect(CENTER_BUTTON, &centerButton, fallingEdge))
         {
-            USB_PrintLinePrompt("Center");
-            HandleCenterButton();
+            USB_printLinePrompt("Center");
+            handleCenterButton();
             G_displayStart = true;
         }
 
-        bool eoln = USB_ReadLine(G_rxLine, (uint16_t)sizeof(G_rxLine), G_echoChar);
+        bool eoln = USB_readLine(G_rxLine, (uint16_t)sizeof(G_rxLine), G_echoChar);
         if (eoln) {
             G_displayStart = true;
             if (G_rxLine[0] != '\0')
@@ -1075,104 +1074,136 @@ int main(void)
             // Process command line
             if (G_echoCommand)
             {
-                USB_PrintEOL();
-                USB_PrintfLine("cmd = '%s'", MAIN_cmd);
+                USB_printEOL();
+                USB_printfLine("cmd = '%s'", MAIN_cmd);
             }
             if (strcmp(MAIN_cmd,"b") == 0)
             {
                 FONT_BlackOnWhite = !FONT_BlackOnWhite;
-                USB_PrintfLine("Toggle white/black letters %d", FONT_BlackOnWhite);
+                USB_printfLine("Toggle white/black letters %d", FONT_BlackOnWhite);
             }
             else if (strcmp(MAIN_cmd,"a") == 0)
             {
-                HandleLeftButton();
-                USB_PrintLine("Left Button pressed");
+                handleLeftButton();
+                USB_printLine("Left Button pressed");
 
             }
             else if (strcmp(MAIN_cmd,"s") == 0)
             {
-                HandleCenterButton();
-                USB_PrintLine("Center Button pressed");
+                handleCenterButton();
+                USB_printLine("Center Button pressed");
             }
             else if (strcmp(MAIN_cmd,"d") == 0)
             {
-                HandleRightButton();
-                USB_PrintLine("Right Button pressed");
+                handleRightButton();
+                USB_printLine("Right Button pressed");
             }
             else if (strcmp(MAIN_cmd,"f") == 0)
             {
                 USB_triggerPressed = !USB_triggerPressed;
                 if (USB_triggerPressed)
                 {
-                    USB_PrintLine("Trigger pressed");
+                    USB_printLine("Trigger pressed");
                 }
                 else
                 {
-                    USB_PrintLine("Trigger released");
+                    USB_printLine("Trigger released");
                 }
 
                 // HandleTrigger();
             }
             else if (strcmp(MAIN_cmd,"c") == 0)
             {
-                tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
+                tableIndex = getCurrentTableIndex();
                 sampleIndex = 0;
                 G_waveformTable[tableIndex][0] = -1;
-                USB_PrintfLine("Clear Waveform[%d]", tableIndex);
+                USB_printfLine("Clear Waveform[%d]", tableIndex);
             }
             else if (strcmp(MAIN_cmd,"h") == 0)
             {
-                USB_PrintLines(G_help);
+                USB_printLines(G_help);
             }
             else if (strcmp(MAIN_cmd,"l") == 0)
             {
                 loadInProgress = true;
-                // G_prompt[0] = '+';
-                USB_PrintLine("Enter one value per line. Enter -1 to end");
-                tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
+                
+                const char *m0 = G_modeNames0[G_mode[0]];
+                const char *m1 = G_modeNames1[G_mode[1]];
+                
+                USB_printfLine("Loading [%s,%s]", m0, m1);
+                USB_printLine("Enter one value per line. Enter -1 to end");
+                tableIndex = getCurrentTableIndex();
                 sampleIndex = 0;
+            }
+            else if (strcmp(MAIN_cmd,"m") == 0)
+            {
+                const char *m0 = G_modeNames0[G_mode[0]];
+                const char *m1 = G_modeNames1[G_mode[1]];
+                USB_printfLine("Mode = [%s,%s]", m0, m1);
             }
             else if (isnum(MAIN_cmd))
             {
+                uint16_t cmdi = (int16_t)strtol(MAIN_cmd, NULL, 10);
                 if (loadInProgress)
                 {
-                    G_waveformTable[tableIndex][sampleIndex++] = (int16_t)strtol(MAIN_cmd, NULL, 10);
+                    G_waveformTable[tableIndex][sampleIndex++] = cmdi;
                 }
                 else
                 {
-                    USB_PrintLine("Error. Enter 'l' to start loading");
+                    uint8_t m0 = cmdi / G_modeSize[1];
+                    uint8_t m1 = cmdi % G_modeSize[1];
+                    if ((m0 < G_modeSize[0]) && (m1 < G_modeSize[1]))
+                    {
+                        G_mode[0] = m0;
+                        G_mode[1] = m1;
+                        updateMode(G_mode[G_modeSel]);
+                        USB_printLine("Changing modes");
+                    }
                 }
-
             }
             else if (strcmp(MAIN_cmd, "-1") == 0)
             {
                 loadInProgress = false;
                 G_waveformTable[tableIndex][sampleIndex++] = -1;
                 // G_prompt[0] = '>';
-                USB_Printf("Waveform[%d] = ", tableIndex);
+                USB_printf("Waveform[%d] = ", tableIndex);
                 p_waveformSample = p_waveformSampleBase;
                 uint8_t i;
                 for (i=0; G_waveformTable[tableIndex][i] != -1; i++)
                 {
-                    USB_Printf("%d, ", G_waveformTable[tableIndex][i]);
+                    USB_printf("%d, ", G_waveformTable[tableIndex][i]);
                 }
-                USB_PrintLine("-1");
+                USB_printLine("-1");
+            }
+            else if (strcmp(MAIN_cmd, "flash") == 0)
+            {
+                uint8_t tableIndex = getCurrentTableIndex();
+                uint8_t flashPageNumber = tableIndex;
+                int16_t *currentTable = G_waveformTable[tableIndex];
+                uint16_t tableLen = getTableLen16(currentTable);
+                int32_t table32[WAVEFORM_SIZE];
+                FLASH_memcpy16to32(table32, currentTable, tableLen, 1);
+                uint8_t err = FLASH_writeTable(table32, tableLen, flashPageNumber);
+                if (err)
+                {
+                    USB_printfLine("Flash Error %d", err);
+                }
             }
             else if (strcmp(MAIN_cmd, "v") == 0)
             {
-                tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
+                tableIndex = getCurrentTableIndex();
                 // G_prompt[0] = '>';
-                USB_Printf("Waveform[%d] = ", tableIndex);
+                USB_printfLine("Waveform[%d] = ", tableIndex);
                 uint8_t i;
                 for (i=0; G_waveformTable[tableIndex][i] != -1; i++)
                 {
-                    USB_Printf("%d, ", G_waveformTable[tableIndex][i]);
+                    USB_printf("%d, ", G_waveformTable[tableIndex][i]);
                 }
-                USB_PrintLine("-1");
+                USB_printLine("-1");
             }
             else if (strcmp(MAIN_cmd,"status") == 0)
             {
-                USB_PrintLines(G_txtScreen);
+                USB_printLines(G_txtScreen);
             }
             else if (strcmp(MAIN_cmd,"t") == 0)
             {
@@ -1183,14 +1214,39 @@ int main(void)
             else if (strcmp(MAIN_cmd,"w") == 0)
             {
                 FONT_BlackOnWhite = !FONT_BlackOnWhite;
-                USB_PrintfLine("Toggle white/black letters %d", FONT_BlackOnWhite);
+                USB_printfLine("Toggle white/black letters %d", FONT_BlackOnWhite);
             }
-            USB_PrintPrompt();
+            else if (stringInArray(MAIN_cmd, G_modeNames0, 3) >= 0)
+            {
+                if (G_modeSel != 0)
+                {
+                    handleCenterButton();
+                }
+                int newSel = (uint8_t)stringInArray(MAIN_cmd, G_modeNames0, 3);
+                G_mode[G_modeSel] = newSel;
+                updateMode(G_mode[G_modeSel]);
+                USB_printfLine("Changing 1st row '%s'",  MAIN_cmd);
+            }
+            else if (stringInArray(MAIN_cmd, G_modeNames1, 3) >= 0)
+            {
+                if (G_modeSel != 1)
+                {
+                    handleCenterButton();
+                }
+                G_mode[G_modeSel] = (uint8_t)stringInArray(MAIN_cmd, G_modeNames1, 3);
+                updateMode(G_mode[G_modeSel]);
+                USB_printfLine("Changing 2nd row '%s'",  MAIN_cmd);                
+            }
+            else
+            {
+                USB_printfLine("Undefined command '%s'",  MAIN_cmd); 
+            }
+            USB_printPrompt();
             G_rxLine[0] = '\0';
         }
 
         tempStart = (cnt == 1);
-        tempDone = TC74_ReadTemp(tempStart, &temperature);
+        tempDone = TC74_readTemp(tempStart, &temperature);
         if (tempDone) {
             bool tempChanged = (temperature != temperaturePrev);
             if (tempChanged)
@@ -1202,7 +1258,7 @@ int main(void)
                 temperaturePrev = temperature;
                 if (tempMonitor)
                 {
-                    USB_PrintfLinePrompt("Temperature %s to %d", 
+                    USB_printfLinePrompt("Temperature %s to %d", 
                                          rising ? "rising" : "falling",
                                          temperature);
                 }
@@ -1210,7 +1266,7 @@ int main(void)
         }
 
         adcStart = (cnt == 1);
-        adcDone = ADC_ReadVoltage(adcStart, &battVoltage);      
+        adcDone = ADC_readVoltage(adcStart, &battVoltage);      
         if (adcDone)
         {
             // USB_PrintLinePrompt("ADC done");
@@ -1233,7 +1289,7 @@ int main(void)
                 battVoltagePrev = battVoltage;
                 if (battMonitor)
                 {
-                    USB_PrintfLinePrompt("Battery %s to %d", 
+                    USB_printfLinePrompt("Battery %s to %d", 
                                          rising ? "rising" : "falling",
                                          battVoltage);
                 }
@@ -1245,22 +1301,22 @@ int main(void)
         {
             if (G_displayStart && !DISP_busy)
             {
-                DISP_WriteFrame(true);
+                DISP_writeFrame(true);
                 G_displayStart = false;
             }
             else
             {
-                DISP_WriteFrame(true);
+                DISP_writeFrame(true);
             }
         }
         else
         {
-            GPIO_Set(DISP_CS, 0);
+            GPIO_set(DISP_CS, 0);
         }
    
-        GPIO_Set(LED1, G_triggerFiring);
-        GPIO_Set(LED2, DISP_vcom);
-        USB_FlushPrintBuffer();
+        GPIO_set(LED1, G_triggerFiring);
+        GPIO_set(LED2, DISP_vcom);
+        USB_flushPrintBuffer();
     } // while (1)
     return 1;
 }

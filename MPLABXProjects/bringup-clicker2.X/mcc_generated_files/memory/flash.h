@@ -71,8 +71,5 @@ bool     FLASH_WriteRow16(uint32_t address, uint16_t *data);
 uint16_t FLASH_GetErasePageOffset(uint32_t address);
 uint32_t FLASH_GetErasePageAddress(uint32_t address);
 
-
-
-
 #endif	/* FLASH_H */
 

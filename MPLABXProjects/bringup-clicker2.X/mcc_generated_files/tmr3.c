@@ -54,7 +54,7 @@
  Section: File specific functions
 */
 void (*TMR3_InterruptHandler)(void) = NULL;
-void TMR3_CallBack(void);
+void TMR3_callBack(void);
 
 /**
   Section: Data Type Definitions
@@ -99,7 +99,7 @@ void TMR3_Initialize (void)
 
     if(TMR3_InterruptHandler == NULL)
     {
-        TMR3_SetInterruptHandler(&TMR3_CallBack);
+        TMR3_SetInterruptHandler(&TMR3_callBack);
     }
 
     IFS0bits.T3IF = false;
@@ -157,7 +157,7 @@ uint16_t TMR3_Counter16BitGet( void )
 }
 
 
-void __attribute__ ((weak)) TMR3_CallBack(void)
+void __attribute__ ((weak)) TMR3_callBack(void)
 {
     // Add your custom callback code here
 }

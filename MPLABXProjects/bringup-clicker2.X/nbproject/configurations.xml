@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="65">
   <logicalFolder name="root" displayName="root" projectFiles="true">
-    <logicalFolder name="HeaderFiles"
-                   displayName="Header Files"
-                   projectFiles="true">
+    <logicalFolder name="HeaderFiles" displayName="headers" projectFiles="true">
       <logicalFolder name="MCC Generated Files"
                      displayName="MCC Generated Files"
                      projectFiles="true">
@@ -37,6 +35,8 @@
       <itemPath>main.h</itemPath>
       <itemPath>tc74.h</itemPath>
       <itemPath>usbprint.h</itemPath>
+      <itemPath>flash_wrapper.h</itemPath>
+      <itemPath>usb_wrapper.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -71,7 +71,7 @@
         <itemPath>mcc_generated_files/tmr3.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
-      <itemPath>flash.c</itemPath>
+      <itemPath>flash_wrapper.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

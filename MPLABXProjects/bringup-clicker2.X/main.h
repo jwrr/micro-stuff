@@ -22,8 +22,8 @@ double   G_temperature  = 25.0;
 uint8_t  G_mode[2]      = {0, 0};
 uint8_t  G_modeSize[2]  = {3, 3};
 
-const char G_modeNames0[8][8] = {"CMWS", "LIMWS", "XMWS", "CONFIG"};
-const char G_modeNames1[8][8] = {"ROCKET", "MISSILE", "GUN", ""};
+const char *G_modeNames0[] = {"AAAA", "BBBB", "CCCC", ""};
+const char *G_modeNames1[] = {"DDDD", "EEEE", "FFFF", ""};
 uint8_t  G_modeSel          = 0;
 uint8_t  G_config           = 0;
 uint8_t  G_usb              = 0;
@@ -177,9 +177,9 @@ char G_txtScreen[][20] = {
     "                  ", // 3
     "    SIGNAL OFF    ", // 4
     "                  ", // 5
-    "<      CMWS      >", // 6
+    "<      AAAA      >", // 6
     "                  ", // 7
-    "      ROCKET      ", // 8
+    "       DDDD       ", // 8
     "                  ", // 9
     "  P/N: PN123-01   ", // 10
     "  F/W: FW123-01   ", // 11
@@ -273,11 +273,11 @@ enum {LETTER_A=0, DIGIT_0=26, SPACE=36, LT=37, GT=38, PERCENT=39, COLON=40,
       SLASH=41, DASH=42};
 
 
-uint8_t FONT_CharToIndex(char ch);
-uint8_t FONT_GetTxtLineNumber(uint8_t pixLineNumber);
-void FONT_GetPixLine(uint8_t pixLineNumber, uint8_t *pixLine);
-bool FONT_IsTxtLineAllSpaces(uint8_t pixLineNumber);
-bool FONT_IsStartingBlankLine(uint8_t pixLineNumber);
+uint8_t FONT_charToIndex(char ch);
+uint8_t FONT_getTxtLineNumber(uint8_t pixLineNumber);
+void FONT_getPixLine(uint8_t pixLineNumber, uint8_t *pixLine);
+bool FONT_isTxtLineAllSpaces(uint8_t pixLineNumber);
+bool FONT_isStartingBlankLine(uint8_t pixLineNumber);
 bool FONT_BlackOnWhite = true;
               
 #endif	/* MAIN_H */
