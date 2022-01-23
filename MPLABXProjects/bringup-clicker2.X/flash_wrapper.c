@@ -23,8 +23,9 @@
 #include "mcc_generated_files/memory/flash.h"
 #include "usbprint.h"
 
-static const uint8_t G_flashNumPages = 10;
-static const uint16_t G_flashPageSize = 1024;
+static const uint8_t FLASH_flashNumPages = 10;
+static const uint16_t FLASH_flashPageSize = 1024;
+
 
 // Allocate and reserve pages of flash.  The compiler/linker will reserve this for data and not place any code here.
 static __prog__  uint8_t flashPage0[FLASH_ERASE_PAGE_SIZE_IN_PC_UNITS] __attribute__((space(prog),aligned(FLASH_ERASE_PAGE_SIZE_IN_PC_UNITS)));
@@ -58,12 +59,12 @@ static uint32_t FLASH_getPageAddress(uint32_t flashPageNumber)
 
 uint32_t FLASH_getPageSize()
 {
-    return G_flashPageSize;
+    return FLASH_flashPageSize;
 }
 
 uint32_t FLASH_getNumPages()
 {
-    return G_flashNumPages;
+    return FLASH_flashNumPages;
 }
 
 uint8_t FLASH_erasePage(uint8_t PageNumber)
@@ -157,17 +158,23 @@ char USB_tmpStr[80];
 static bool G_enablePrompt = true;
 static char *G_prompt = "> ";
 
+int32_t FLASH_readFromPage(uint8_t pageNumber, uint16_t pageOffset)
+{
+    const uint16_t pageSize = FLASH_getPageSize();
+    if (pageOffset > pageSize) return -1;
+    const uint32_t flashPageBaseAddress = FLASH_getPageAddress(pageNumber);
+    if (flashPageBaseAddress == 0) return -1;
+    const uint32_t flashAddress = flashPageBaseAddress + pageOffset;
+    int32_t readData = FLASH_ReadWord24(flashAddress);
+    return readData;
+}
+
 int32_t FLASH_read(uint32_t flashOffset)
 {
     const uint16_t pageSize = FLASH_getPageSize();
     const uint8_t pageNumber = flashOffset / pageSize;
     const uint16_t pageOffset = 2 * (flashOffset % pageSize);
-    const uint32_t flashPageBaseAddress = FLASH_getPageAddress(pageNumber);
-    const uint32_t flashAddress = flashPageBaseAddress + pageOffset;
-    int32_t readData = FLASH_ReadWord24(flashAddress);
-//    if (pageOffset >= 2048) {
-//       USB_printfLine("ps=%d, pn=%d, fox2=%d rd=%04x", pageSize, pageNumber, (int)pageOffset, (int)readData);
-//    }
+    int32_t readData = FLASH_readFromPage(pageNumber, pageOffset);
     return readData;
 }
 
@@ -280,6 +287,39 @@ void FLASH_memcpy16to32(int32_t dest32[], int16_t src16[], uint16_t len, int32_t
     {
         dest32[i] = ((int32_t)src16[i]) | (upperWordVal << 16);
     }
+}
+
+
+#define  FLASH_loadBufferSize 256
+static int32_t FLASH_loadBuffer[FLASH_loadBufferSize];
+uint16_t FLASH_indexLoadBuffer = 0;
+void FLASH_clearLoadBuffer()
+{
+    FLASH_indexLoadBuffer = 0;
+}
+
+uint16_t FLASH_appendLoadBuffer(uint32_t value)
+{
+    int32_t validBit = 0x10000;
+    FLASH_loadBuffer[FLASH_indexLoadBuffer++] = (value | validBit) & 0x1FFFF;
+    return FLASH_indexLoadBuffer;
+}
+
+uint16_t FLASH_getLoaddBufferLen()
+{
+    return FLASH_indexLoadBuffer;
+}
+
+uint32_t FLASH_getLoadBuffer(uint16_t i)
+{
+    return FLASH_loadBuffer[FLASH_indexLoadBuffer];
+}
+
+uint8_t FLASH_writeLoadBuffer(uint8_t pageNumber)
+{    
+    uint8_t err = FLASH_writePage(FLASH_loadBuffer, (uint32_t)FLASH_indexLoadBuffer, pageNumber);
+    FLASH_indexLoadBuffer = 0;
+    return err;
 }
 
 

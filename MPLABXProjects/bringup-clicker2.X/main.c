@@ -113,6 +113,40 @@ void FONT_getPixLine(uint8_t pixLineIndex, uint8_t *pixLine);
 // ===============================================================
 // ===============================================================
 
+//===============================================================
+// MODE
+
+uint8_t getModeIndex();
+uint8_t getModeSize(uint8_t mode);
+const char *getModeName(uint8_t m);
+void setMode(uint8_t mode, uint8_t val);
+
+uint8_t getModeIndex()
+{
+    uint8_t tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
+    return tableIndex;
+}
+
+uint8_t getModeSize(uint8_t mode)
+{
+    if (mode >= 2) return 0;
+    return G_modeSize[mode];
+}
+
+const char *getModeName(uint8_t m)
+{
+    if (m >= 2) return NULL;
+    if (m == 0) return G_modeNames0[G_mode[m]];
+    if (m == 1) return G_modeNames1[G_mode[m]];
+    return NULL;
+}
+
+void setMode(uint8_t mode, uint8_t val)
+{
+    if (mode >= 2) return;
+    G_mode[mode] = val;
+}
+
 
 // ===============================================================
 // USB
@@ -308,6 +342,33 @@ static bool USB_readLine(char line[], uint16_t maxLen, bool echo)
     }
     
     return eoln;
+}
+
+
+void USB_printWave()
+{
+    uint8_t tableIndex = getModeIndex();
+    USB_printfLine("Waveform[%d] = ", tableIndex);
+    uint16_t i;
+    bool done = false;
+    for (i=0; i<257; i+=2)
+    {
+        int32_t value32 = FLASH_readFromPage(tableIndex, i);
+        // flash is initially 0
+        // after page is written and erased it's 0x00FFFFFF
+        // table writer sets bit 16 "valid" bit, so all values should  be in
+        // the range of 0x10000 to 0x1ffff
+        bool outOfRange = (value32 < 0x10000) || (value32 > 0x1ffff);
+        int32_t value16 = value32 & 0xffff; // trim valid bit
+        bool isNegative = (value16 > 0x7fff);
+        done = outOfRange || isNegative;
+        if (done) break;
+        USB_printf("%d, ", (int)value16);
+//        int32_t upper = value32 >> 16;
+//        int32_t lower = value32 & 0xFFFF;
+//        USB_printfLine("%04x%04x %d %d %d %d, ", (int)upper, (int)lower, (int)value16,  outOfRange, isNegative, done);
+    }
+    USB_printLine("-1");
 }
 
 // ===============================================================
@@ -919,12 +980,6 @@ bool timeMonitor = false;
 uint16_t cnt500usec = 0;
 uint16_t cntSeconds = 0;
 
-uint8_t getCurrentTableIndex()
-{
-    uint8_t tableIndex = G_mode[0] * G_modeSize[1] + G_mode[1];
-    return tableIndex;
-}
-
 void TMR3_callBack(void)
 {
     if (G_triggerFiring)
@@ -942,7 +997,7 @@ void TMR3_callBack(void)
     
     if (cnt500usec >= 2000)
     {
-        uint8_t tableIndex = getCurrentTableIndex();
+        uint8_t tableIndex = getModeIndex();
         p_waveformSampleBase = G_waveformTable[tableIndex];
         p_waveformSample = p_waveformSampleBase;
         handleTrigger();
@@ -971,7 +1026,7 @@ uint16_t getTableLen16(int16_t *table)
     return maxLen;
 }
 
-bool isnum(char *s)
+bool isUint(char *s)
 {
     uint16_t i = 0;
     if (s[0] == '\0') return false;
@@ -995,7 +1050,6 @@ int stringInArray(char *str, const char *strArray[], int len)
     }
     return -1;
 }
-
 
 char MAIN_cmd[USB_LINELEN] = "";
 
@@ -1032,7 +1086,7 @@ int main(void)
 
     bool loadInProgress = false;
     
-    FLASH_test();
+    // FLASH_test();
  
     TMR3_SetInterruptHandler(&TMR3_callBack);
     TMR3_Start();
@@ -1112,94 +1166,53 @@ int main(void)
 
                 // HandleTrigger();
             }
-            else if (strcmp(MAIN_cmd,"c") == 0)
+            else if (strcmp(MAIN_cmd,"e") == 0)
             {
-                tableIndex = getCurrentTableIndex();
-                sampleIndex = 0;
-                G_waveformTable[tableIndex][0] = -1;
-                USB_printfLine("Clear Waveform[%d]", tableIndex);
+                tableIndex = getModeIndex();
+                const char *m0 = getModeName(0);
+                const char *m1 = getModeName(1);
+                FLASH_erasePage(tableIndex);
+                USB_printfLine("Erasing Waveform %d [%s,%s]", tableIndex, m0, m1);
             }
             else if (strcmp(MAIN_cmd,"h") == 0)
             {
                 USB_printLines(G_help);
             }
-            else if (strcmp(MAIN_cmd,"l") == 0)
-            {
+            else if (strcmp(MAIN_cmd,"w") == 0)
+            { // write Wave
+                FLASH_clearLoadBuffer();
                 loadInProgress = true;
+                tableIndex = getModeIndex();
+                const char *m0 = getModeName(0);
+                const char *m1 = getModeName(1);
                 
-                const char *m0 = G_modeNames0[G_mode[0]];
-                const char *m1 = G_modeNames1[G_mode[1]];
-                
-                USB_printfLine("Loading [%s,%s]", m0, m1);
+                USB_printfLine("Loading table %d [%s,%s]", tableIndex, m0, m1);
                 USB_printLine("Enter one value per line. Enter -1 to end");
-                tableIndex = getCurrentTableIndex();
                 sampleIndex = 0;
             }
-            else if (strcmp(MAIN_cmd,"m") == 0)
+            else if (isUint(MAIN_cmd) && loadInProgress)
             {
-                const char *m0 = G_modeNames0[G_mode[0]];
-                const char *m1 = G_modeNames1[G_mode[1]];
-                USB_printfLine("Mode = [%s,%s]", m0, m1);
-            }
-            else if (isnum(MAIN_cmd))
-            {
-                uint16_t cmdi = (int16_t)strtol(MAIN_cmd, NULL, 10);
-                if (loadInProgress)
-                {
-                    G_waveformTable[tableIndex][sampleIndex++] = cmdi;
-                }
-                else
-                {
-                    uint8_t m0 = cmdi / G_modeSize[1];
-                    uint8_t m1 = cmdi % G_modeSize[1];
-                    if ((m0 < G_modeSize[0]) && (m1 < G_modeSize[1]))
-                    {
-                        G_mode[0] = m0;
-                        G_mode[1] = m1;
-                        updateMode(G_mode[G_modeSel]);
-                        USB_printLine("Changing modes");
-                    }
-                }
+                uint16_t loadValue = (int16_t)strtol(MAIN_cmd, NULL, 10);
+                FLASH_appendLoadBuffer((uint32_t)loadValue);
             }
             else if (strcmp(MAIN_cmd, "-1") == 0)
             {
                 loadInProgress = false;
-                G_waveformTable[tableIndex][sampleIndex++] = -1;
-                // G_prompt[0] = '>';
-                USB_printf("Waveform[%d] = ", tableIndex);
-                p_waveformSample = p_waveformSampleBase;
-                uint8_t i;
-                for (i=0; G_waveformTable[tableIndex][i] != -1; i++)
-                {
-                    USB_printf("%d, ", G_waveformTable[tableIndex][i]);
-                }
-                USB_printLine("-1");
+                FLASH_appendLoadBuffer(-1);
+                uint8_t pageNumber = getModeIndex();
+                FLASH_writeLoadBuffer(pageNumber);
+                USB_printWave();
             }
-            else if (strcmp(MAIN_cmd, "flash") == 0)
+            else if (strcmp(MAIN_cmd,"m") == 0)
             {
-                uint8_t tableIndex = getCurrentTableIndex();
-                uint8_t flashPageNumber = tableIndex;
-                int16_t *currentTable = G_waveformTable[tableIndex];
-                uint16_t tableLen = getTableLen16(currentTable);
-                int32_t table32[WAVEFORM_SIZE];
-                FLASH_memcpy16to32(table32, currentTable, tableLen, 1);
-                uint8_t err = FLASH_writeTable(table32, tableLen, flashPageNumber);
-                if (err)
-                {
-                    USB_printfLine("Flash Error %d", err);
-                }
+                uint8_t mi = getModeIndex();
+                const char *m0 = getModeName(0);
+                const char *m1 = getModeName(1);
+                USB_printfLine("Mode = %d [%s,%s]", mi, m0, m1);
             }
-            else if (strcmp(MAIN_cmd, "v") == 0)
+            else if (strcmp(MAIN_cmd, "r") == 0) // read wave
             {
-                tableIndex = getCurrentTableIndex();
-                // G_prompt[0] = '>';
-                USB_printfLine("Waveform[%d] = ", tableIndex);
-                uint8_t i;
-                for (i=0; G_waveformTable[tableIndex][i] != -1; i++)
-                {
-                    USB_printf("%d, ", G_waveformTable[tableIndex][i]);
-                }
-                USB_printLine("-1");
+                USB_printWave();
             }
             else if (strcmp(MAIN_cmd,"status") == 0)
             {
@@ -1215,6 +1228,23 @@ int main(void)
             {
                 FONT_BlackOnWhite = !FONT_BlackOnWhite;
                 USB_printfLine("Toggle white/black letters %d", FONT_BlackOnWhite);
+            }
+            else if (isUint(MAIN_cmd)) // change mode
+            {
+                uint8_t modeIndex = (int8_t)strtol(MAIN_cmd, NULL, 10);
+                uint8_t mode0Size = getModeSize(0);
+                uint8_t mode1Size = getModeSize(1);
+                uint8_t m0 = modeIndex / mode1Size;
+                uint8_t m1 = modeIndex % mode1Size;
+                if ((m0 < mode0Size) && (m1 < mode1Size))
+                {
+                    setMode(0, m0);
+                    setMode(1, m1);
+                    updateMode(G_mode[G_modeSel]);
+                    const char *m0 = getModeName(0);
+                    const char *m1 = getModeName(1);
+                    USB_printfLine("Changing to %d [%s,%s]", modeIndex, m0, m1);
+                }
             }
             else if (stringInArray(MAIN_cmd, G_modeNames0, 3) >= 0)
             {
