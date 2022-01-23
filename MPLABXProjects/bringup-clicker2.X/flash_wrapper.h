@@ -1,8 +1,6 @@
 /* 
  * File:   flash_wrapper.h
- * Author: robin
- *
- * Created on January 21, 2022, 11:22 AM
+ * 
  */
 
 #ifndef FLASH_WRAPPER_H
@@ -14,6 +12,8 @@ uint8_t FLASH_erasePage(uint8_t PageNumber);
 uint8_t FLASH_writePage(int32_t writeData[], uint32_t dataSize, uint8_t pageNumber);
 uint8_t FLASH_writePages(int32_t writeData[], uint32_t dataLen);
 int32_t FLASH_readFromPage(uint8_t pageNumber, uint16_t pageOffset);
+int16_t FLASH_readSample(uint8_t pageNumber, uint16_t pageOffset);
+bool FLASH_isValid(int8_t pageNumber, uint16_t pageOffset);
 uint32_t FLASH_read(uint32_t flashOffset);
 uint8_t FLASH_writeTable(int32_t currentTable[], uint16_t tableLen, uint8_t flashPageNumber);
 uint8_t FLASH_verify(const int32_t dataTable[], uint16_t len, uint8_t pageNumber);

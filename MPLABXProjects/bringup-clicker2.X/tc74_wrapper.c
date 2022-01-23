@@ -1,27 +1,20 @@
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <ctype.h>
-#include "mcc_generated_files/system.h"
-#include "mcc_generated_files/usb/usb.h"
-#include "mcc_generated_files/adc1.h"
-#include "main.h"
-#include "mcc_generated_files/interrupt_manager.h"
-#include "mcc_generated_files/i2c3.h"
-#include "mcc_generated_files/spi2.h"
 
-#include "tc74.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "mcc_generated_files/i2c3.h"
+
+// ==========================================================
+// TC74 i2c temperature sensor
+
+#define I2C_ADDR_TC74  0X4D  // A5 Default
 
 uint8_t TC74_state = 0;
 uint8_t TC74_temp = 0;
 uint8_t TC74_cmd = 0; // read temperature. 1 = standby
 I2C3_MESSAGE_STATUS TC74_status;
 
-bool TC74_ReadTemp(bool start, int8_t *t)
+bool TC74_readTemp(bool start, int8_t *t)
 {
     const uint8_t len = 1;
     bool done = false;

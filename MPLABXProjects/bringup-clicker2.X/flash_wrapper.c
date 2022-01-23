@@ -21,7 +21,8 @@
 */
 
 #include "mcc_generated_files/memory/flash.h"
-#include "usbprint.h"
+#include "usb_wrapper.h"
+#include "wave_wrapper.h"
 
 static const uint8_t FLASH_flashNumPages = 10;
 static const uint16_t FLASH_flashPageSize = 1024;
@@ -152,12 +153,6 @@ uint8_t FLASH_writePages(int32_t writeData[], uint32_t dataLen)
     return err;
 }
 
-
-
-char USB_tmpStr[80];
-static bool G_enablePrompt = true;
-static char *G_prompt = "> ";
-
 int32_t FLASH_readFromPage(uint8_t pageNumber, uint16_t pageOffset)
 {
     const uint16_t pageSize = FLASH_getPageSize();
@@ -168,6 +163,32 @@ int32_t FLASH_readFromPage(uint8_t pageNumber, uint16_t pageOffset)
     int32_t readData = FLASH_ReadWord24(flashAddress);
     return readData;
 }
+
+bool FLASH_isValid(int8_t pageNumber, uint16_t pageOffset)
+{
+    // value must be between 0x10000 and 0x17fff)
+    int32_t value = FLASH_readFromPage(pageNumber, pageOffset);
+    bool err = (value < 0x10000) || (value > 0x17fff);
+    bool valid = !err;
+    return valid;
+}
+
+int16_t FLASH_readSample(uint8_t pageNumber, uint16_t pageOffset)
+{
+    bool isPageProgrammed = FLASH_isValid(pageNumber, 0);
+    int16_t val16 = -1;
+    if (isPageProgrammed == true)
+    {
+        int32_t val32 = FLASH_readFromPage(pageNumber, pageOffset);
+        val16 = (int16_t)(val32 & 0xffff);
+    }
+    else
+    {
+        val16 = WAVE_getFactoryDefault(pageNumber, pageOffset);
+    }
+    return val16;
+}
+
 
 int32_t FLASH_read(uint32_t flashOffset)
 {
