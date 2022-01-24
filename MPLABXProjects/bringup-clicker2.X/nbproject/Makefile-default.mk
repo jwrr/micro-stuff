@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=mcc_generated_files/memory/flash.s mcc_generated_files/usb/usb_device.c mcc_generated_files/usb/usb_descriptors.c mcc_generated_files/usb/usb_device_cdc.c mcc_generated_files/usb/usb_hal_16bit.c mcc_generated_files/usb/usb_device_events.c mcc_generated_files/usb/example_mcc_usb_cdc.c mcc_generated_files/clock.c mcc_generated_files/traps.c mcc_generated_files/interrupt_manager.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/system.c mcc_generated_files/adc1.c mcc_generated_files/i2c3.c mcc_generated_files/spi2.c mcc_generated_files/tmr3.c main.c flash_wrapper.c usb_wrapper.c disp_wrapper.c gpio_wrapper.c font_wrapper.c dac_wrapper.c adc_wrapper.c timer_wrapper.c trigger_wrapper.c tc74_wrapper.c helper_wrapper.c wave_wrapper.c
+SOURCEFILES_QUOTED_IF_SPACED=mcc_generated_files/memory/flash.s mcc_generated_files/usb/usb_device.c mcc_generated_files/usb/usb_descriptors.c mcc_generated_files/usb/usb_device_cdc.c mcc_generated_files/usb/usb_hal_16bit.c mcc_generated_files/usb/usb_device_events.c mcc_generated_files/usb/example_mcc_usb_cdc.c mcc_generated_files/clock.c mcc_generated_files/traps.c mcc_generated_files/interrupt_manager.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/system.c mcc_generated_files/adc1.c mcc_generated_files/i2c3.c mcc_generated_files/spi2.c mcc_generated_files/tmr3.c main.c flash_wrapper.c usb_wrapper.c disp_wrapper.c gpio_wrapper.c font_wrapper.c dac_wrapper.c adc_wrapper.c timer_wrapper.c trigger_wrapper.c wave_wrapper.c cmd_wrapper.c misc_wrapper.c help_wrapper.c temp_wrapper.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mcc_generated_files/memory/flash.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o ${OBJECTDIR}/mcc_generated_files/usb/usb_descriptors.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_cdc.o ${OBJECTDIR}/mcc_generated_files/usb/usb_hal_16bit.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_events.o ${OBJECTDIR}/mcc_generated_files/usb/example_mcc_usb_cdc.o ${OBJECTDIR}/mcc_generated_files/clock.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/system.o ${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c3.o ${OBJECTDIR}/mcc_generated_files/spi2.o ${OBJECTDIR}/mcc_generated_files/tmr3.o ${OBJECTDIR}/main.o ${OBJECTDIR}/flash_wrapper.o ${OBJECTDIR}/usb_wrapper.o ${OBJECTDIR}/disp_wrapper.o ${OBJECTDIR}/gpio_wrapper.o ${OBJECTDIR}/font_wrapper.o ${OBJECTDIR}/dac_wrapper.o ${OBJECTDIR}/adc_wrapper.o ${OBJECTDIR}/timer_wrapper.o ${OBJECTDIR}/trigger_wrapper.o ${OBJECTDIR}/tc74_wrapper.o ${OBJECTDIR}/helper_wrapper.o ${OBJECTDIR}/wave_wrapper.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/mcc_generated_files/memory/flash.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_descriptors.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_device_cdc.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_hal_16bit.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_device_events.o.d ${OBJECTDIR}/mcc_generated_files/usb/example_mcc_usb_cdc.o.d ${OBJECTDIR}/mcc_generated_files/clock.o.d ${OBJECTDIR}/mcc_generated_files/traps.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/system.o.d ${OBJECTDIR}/mcc_generated_files/adc1.o.d ${OBJECTDIR}/mcc_generated_files/i2c3.o.d ${OBJECTDIR}/mcc_generated_files/spi2.o.d ${OBJECTDIR}/mcc_generated_files/tmr3.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/flash_wrapper.o.d ${OBJECTDIR}/usb_wrapper.o.d ${OBJECTDIR}/disp_wrapper.o.d ${OBJECTDIR}/gpio_wrapper.o.d ${OBJECTDIR}/font_wrapper.o.d ${OBJECTDIR}/dac_wrapper.o.d ${OBJECTDIR}/adc_wrapper.o.d ${OBJECTDIR}/timer_wrapper.o.d ${OBJECTDIR}/trigger_wrapper.o.d ${OBJECTDIR}/tc74_wrapper.o.d ${OBJECTDIR}/helper_wrapper.o.d ${OBJECTDIR}/wave_wrapper.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/mcc_generated_files/memory/flash.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o ${OBJECTDIR}/mcc_generated_files/usb/usb_descriptors.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_cdc.o ${OBJECTDIR}/mcc_generated_files/usb/usb_hal_16bit.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_events.o ${OBJECTDIR}/mcc_generated_files/usb/example_mcc_usb_cdc.o ${OBJECTDIR}/mcc_generated_files/clock.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/system.o ${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c3.o ${OBJECTDIR}/mcc_generated_files/spi2.o ${OBJECTDIR}/mcc_generated_files/tmr3.o ${OBJECTDIR}/main.o ${OBJECTDIR}/flash_wrapper.o ${OBJECTDIR}/usb_wrapper.o ${OBJECTDIR}/disp_wrapper.o ${OBJECTDIR}/gpio_wrapper.o ${OBJECTDIR}/font_wrapper.o ${OBJECTDIR}/dac_wrapper.o ${OBJECTDIR}/adc_wrapper.o ${OBJECTDIR}/timer_wrapper.o ${OBJECTDIR}/trigger_wrapper.o ${OBJECTDIR}/wave_wrapper.o ${OBJECTDIR}/cmd_wrapper.o ${OBJECTDIR}/misc_wrapper.o ${OBJECTDIR}/help_wrapper.o ${OBJECTDIR}/temp_wrapper.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/mcc_generated_files/memory/flash.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_descriptors.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_device_cdc.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_hal_16bit.o.d ${OBJECTDIR}/mcc_generated_files/usb/usb_device_events.o.d ${OBJECTDIR}/mcc_generated_files/usb/example_mcc_usb_cdc.o.d ${OBJECTDIR}/mcc_generated_files/clock.o.d ${OBJECTDIR}/mcc_generated_files/traps.o.d ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o.d ${OBJECTDIR}/mcc_generated_files/pin_manager.o.d ${OBJECTDIR}/mcc_generated_files/mcc.o.d ${OBJECTDIR}/mcc_generated_files/system.o.d ${OBJECTDIR}/mcc_generated_files/adc1.o.d ${OBJECTDIR}/mcc_generated_files/i2c3.o.d ${OBJECTDIR}/mcc_generated_files/spi2.o.d ${OBJECTDIR}/mcc_generated_files/tmr3.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/flash_wrapper.o.d ${OBJECTDIR}/usb_wrapper.o.d ${OBJECTDIR}/disp_wrapper.o.d ${OBJECTDIR}/gpio_wrapper.o.d ${OBJECTDIR}/font_wrapper.o.d ${OBJECTDIR}/dac_wrapper.o.d ${OBJECTDIR}/adc_wrapper.o.d ${OBJECTDIR}/timer_wrapper.o.d ${OBJECTDIR}/trigger_wrapper.o.d ${OBJECTDIR}/wave_wrapper.o.d ${OBJECTDIR}/cmd_wrapper.o.d ${OBJECTDIR}/misc_wrapper.o.d ${OBJECTDIR}/help_wrapper.o.d ${OBJECTDIR}/temp_wrapper.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/mcc_generated_files/memory/flash.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o ${OBJECTDIR}/mcc_generated_files/usb/usb_descriptors.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_cdc.o ${OBJECTDIR}/mcc_generated_files/usb/usb_hal_16bit.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_events.o ${OBJECTDIR}/mcc_generated_files/usb/example_mcc_usb_cdc.o ${OBJECTDIR}/mcc_generated_files/clock.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/system.o ${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c3.o ${OBJECTDIR}/mcc_generated_files/spi2.o ${OBJECTDIR}/mcc_generated_files/tmr3.o ${OBJECTDIR}/main.o ${OBJECTDIR}/flash_wrapper.o ${OBJECTDIR}/usb_wrapper.o ${OBJECTDIR}/disp_wrapper.o ${OBJECTDIR}/gpio_wrapper.o ${OBJECTDIR}/font_wrapper.o ${OBJECTDIR}/dac_wrapper.o ${OBJECTDIR}/adc_wrapper.o ${OBJECTDIR}/timer_wrapper.o ${OBJECTDIR}/trigger_wrapper.o ${OBJECTDIR}/tc74_wrapper.o ${OBJECTDIR}/helper_wrapper.o ${OBJECTDIR}/wave_wrapper.o
+OBJECTFILES=${OBJECTDIR}/mcc_generated_files/memory/flash.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o ${OBJECTDIR}/mcc_generated_files/usb/usb_descriptors.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_cdc.o ${OBJECTDIR}/mcc_generated_files/usb/usb_hal_16bit.o ${OBJECTDIR}/mcc_generated_files/usb/usb_device_events.o ${OBJECTDIR}/mcc_generated_files/usb/example_mcc_usb_cdc.o ${OBJECTDIR}/mcc_generated_files/clock.o ${OBJECTDIR}/mcc_generated_files/traps.o ${OBJECTDIR}/mcc_generated_files/interrupt_manager.o ${OBJECTDIR}/mcc_generated_files/pin_manager.o ${OBJECTDIR}/mcc_generated_files/mcc.o ${OBJECTDIR}/mcc_generated_files/system.o ${OBJECTDIR}/mcc_generated_files/adc1.o ${OBJECTDIR}/mcc_generated_files/i2c3.o ${OBJECTDIR}/mcc_generated_files/spi2.o ${OBJECTDIR}/mcc_generated_files/tmr3.o ${OBJECTDIR}/main.o ${OBJECTDIR}/flash_wrapper.o ${OBJECTDIR}/usb_wrapper.o ${OBJECTDIR}/disp_wrapper.o ${OBJECTDIR}/gpio_wrapper.o ${OBJECTDIR}/font_wrapper.o ${OBJECTDIR}/dac_wrapper.o ${OBJECTDIR}/adc_wrapper.o ${OBJECTDIR}/timer_wrapper.o ${OBJECTDIR}/trigger_wrapper.o ${OBJECTDIR}/wave_wrapper.o ${OBJECTDIR}/cmd_wrapper.o ${OBJECTDIR}/misc_wrapper.o ${OBJECTDIR}/help_wrapper.o ${OBJECTDIR}/temp_wrapper.o
 
 # Source Files
-SOURCEFILES=mcc_generated_files/memory/flash.s mcc_generated_files/usb/usb_device.c mcc_generated_files/usb/usb_descriptors.c mcc_generated_files/usb/usb_device_cdc.c mcc_generated_files/usb/usb_hal_16bit.c mcc_generated_files/usb/usb_device_events.c mcc_generated_files/usb/example_mcc_usb_cdc.c mcc_generated_files/clock.c mcc_generated_files/traps.c mcc_generated_files/interrupt_manager.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/system.c mcc_generated_files/adc1.c mcc_generated_files/i2c3.c mcc_generated_files/spi2.c mcc_generated_files/tmr3.c main.c flash_wrapper.c usb_wrapper.c disp_wrapper.c gpio_wrapper.c font_wrapper.c dac_wrapper.c adc_wrapper.c timer_wrapper.c trigger_wrapper.c tc74_wrapper.c helper_wrapper.c wave_wrapper.c
+SOURCEFILES=mcc_generated_files/memory/flash.s mcc_generated_files/usb/usb_device.c mcc_generated_files/usb/usb_descriptors.c mcc_generated_files/usb/usb_device_cdc.c mcc_generated_files/usb/usb_hal_16bit.c mcc_generated_files/usb/usb_device_events.c mcc_generated_files/usb/example_mcc_usb_cdc.c mcc_generated_files/clock.c mcc_generated_files/traps.c mcc_generated_files/interrupt_manager.c mcc_generated_files/pin_manager.c mcc_generated_files/mcc.c mcc_generated_files/system.c mcc_generated_files/adc1.c mcc_generated_files/i2c3.c mcc_generated_files/spi2.c mcc_generated_files/tmr3.c main.c flash_wrapper.c usb_wrapper.c disp_wrapper.c gpio_wrapper.c font_wrapper.c dac_wrapper.c adc_wrapper.c timer_wrapper.c trigger_wrapper.c wave_wrapper.c cmd_wrapper.c misc_wrapper.c help_wrapper.c temp_wrapper.c
 
 
 
@@ -251,23 +251,35 @@ ${OBJECTDIR}/trigger_wrapper.o: trigger_wrapper.c  .generated_files/flags/defaul
 	@${RM} ${OBJECTDIR}/trigger_wrapper.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  trigger_wrapper.c  -o ${OBJECTDIR}/trigger_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/trigger_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/tc74_wrapper.o: tc74_wrapper.c  .generated_files/flags/default/8849cda59a012708b3319b0bf8e559b1b7df5641 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/tc74_wrapper.o.d 
-	@${RM} ${OBJECTDIR}/tc74_wrapper.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  tc74_wrapper.c  -o ${OBJECTDIR}/tc74_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/tc74_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
-${OBJECTDIR}/helper_wrapper.o: helper_wrapper.c  .generated_files/flags/default/c833cdd728645ba20b360b52fa8a6ec724f9909b .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/helper_wrapper.o.d 
-	@${RM} ${OBJECTDIR}/helper_wrapper.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  helper_wrapper.c  -o ${OBJECTDIR}/helper_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/helper_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 ${OBJECTDIR}/wave_wrapper.o: wave_wrapper.c  .generated_files/flags/default/911651b06301665a9c562318bcbe9fd2d76645f9 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/wave_wrapper.o.d 
 	@${RM} ${OBJECTDIR}/wave_wrapper.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  wave_wrapper.c  -o ${OBJECTDIR}/wave_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/wave_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/cmd_wrapper.o: cmd_wrapper.c  .generated_files/flags/default/73c3e383aaa3aa22851ebb45d43fec98c354d6e9 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/cmd_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/cmd_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  cmd_wrapper.c  -o ${OBJECTDIR}/cmd_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/cmd_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/misc_wrapper.o: misc_wrapper.c  .generated_files/flags/default/b67e228635ebc726fc4c657431f60b20a5e1d137 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/misc_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/misc_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  misc_wrapper.c  -o ${OBJECTDIR}/misc_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/misc_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/help_wrapper.o: help_wrapper.c  .generated_files/flags/default/a5f6240fabb8185585f53bd4df3c6405c26cfdf7 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/help_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/help_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  help_wrapper.c  -o ${OBJECTDIR}/help_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/help_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/temp_wrapper.o: temp_wrapper.c  .generated_files/flags/default/9c84b72ec6cc8d4eb00f5ac247f4aa1bdf76dd09 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/temp_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/temp_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  temp_wrapper.c  -o ${OBJECTDIR}/temp_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/temp_wrapper.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 else
 ${OBJECTDIR}/mcc_generated_files/usb/usb_device.o: mcc_generated_files/usb/usb_device.c  .generated_files/flags/default/d6b4bacc12c56b31cb023cfc899cb380f427e47f .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
@@ -426,23 +438,35 @@ ${OBJECTDIR}/trigger_wrapper.o: trigger_wrapper.c  .generated_files/flags/defaul
 	@${RM} ${OBJECTDIR}/trigger_wrapper.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  trigger_wrapper.c  -o ${OBJECTDIR}/trigger_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/trigger_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/tc74_wrapper.o: tc74_wrapper.c  .generated_files/flags/default/4e2364ba93405a662c2d1e38779f0b1c3426d542 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/tc74_wrapper.o.d 
-	@${RM} ${OBJECTDIR}/tc74_wrapper.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  tc74_wrapper.c  -o ${OBJECTDIR}/tc74_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/tc74_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
-${OBJECTDIR}/helper_wrapper.o: helper_wrapper.c  .generated_files/flags/default/f8b3727f9ee102a3c7e9f05a347e7f1b6aa3bab6 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/helper_wrapper.o.d 
-	@${RM} ${OBJECTDIR}/helper_wrapper.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  helper_wrapper.c  -o ${OBJECTDIR}/helper_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/helper_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 ${OBJECTDIR}/wave_wrapper.o: wave_wrapper.c  .generated_files/flags/default/4da542055d6a5a76bb13ec7f05483bc2117d199d .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/wave_wrapper.o.d 
 	@${RM} ${OBJECTDIR}/wave_wrapper.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  wave_wrapper.c  -o ${OBJECTDIR}/wave_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/wave_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/cmd_wrapper.o: cmd_wrapper.c  .generated_files/flags/default/b8fc9482297ea5a36324cae140538656929ba1ab .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/cmd_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/cmd_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  cmd_wrapper.c  -o ${OBJECTDIR}/cmd_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/cmd_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/misc_wrapper.o: misc_wrapper.c  .generated_files/flags/default/9d1e9d00afee5b71e90672c7d23e8e7a32d683b4 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/misc_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/misc_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  misc_wrapper.c  -o ${OBJECTDIR}/misc_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/misc_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/help_wrapper.o: help_wrapper.c  .generated_files/flags/default/85401658789274a75b5a60344e3da68e3ed37d9f .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/help_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/help_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  help_wrapper.c  -o ${OBJECTDIR}/help_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/help_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/temp_wrapper.o: temp_wrapper.c  .generated_files/flags/default/7b7df7f61c8195b63ab9402bbb667c9a554dce11 .generated_files/flags/default/b93489a4dc52ce9e4aeb19e103aa4687337b6a59
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/temp_wrapper.o.d 
+	@${RM} ${OBJECTDIR}/temp_wrapper.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  temp_wrapper.c  -o ${OBJECTDIR}/temp_wrapper.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/temp_wrapper.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 endif
 

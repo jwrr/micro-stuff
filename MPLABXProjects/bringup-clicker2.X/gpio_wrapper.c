@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include "gpio_wrapper.h"
+#include "usb_wrapper.h"
+#include "disp_wrapper.h"
 #include "mcc_generated_files/system.h"
 
 // ===============================================================
@@ -77,3 +80,34 @@ bool GPIO_edgeDetect(char *pin, bool *val, uint8_t whichEdge)
                         (both && (prevVal != newVal));
     return edgeDetected;
 }
+
+static bool GPIO_leftButton = false;
+static bool GPIO_rightButton = false;
+static bool GPIO_centerButton = false;
+
+void GPIO_handleButtons()
+{
+    const uint8_t fallingEdge = 0; // 0 = falling, 1 = rising, 2 = both
+
+    if (GPIO_edgeDetect(GPIO_LEFT_BUTTON, &GPIO_leftButton, fallingEdge))
+    {
+//        USB_printLinePrompt("Left");
+        DISP_handleLeftButton();
+        DISP_enableDisplayThisCycle();
+    }
+
+    if (GPIO_edgeDetect(GPIO_RIGHT_BUTTON, &GPIO_rightButton, fallingEdge))
+    {
+//        USB_printLinePrompt("Right");
+        DISP_handleRightButton();
+        DISP_enableDisplayThisCycle();
+    }
+
+    if (GPIO_edgeDetect(GPIO_CENTER_BUTTON, &GPIO_centerButton, fallingEdge))
+    {
+//        USB_printLinePrompt("Center");
+        DISP_handleCenterButton();
+        DISP_enableDisplayThisCycle();
+    }
+}
+

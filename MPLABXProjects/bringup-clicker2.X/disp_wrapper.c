@@ -6,6 +6,7 @@
 #include "gpio_wrapper.h"
 #include "disp_wrapper.h"
 #include "font_wrapper.h"
+#include "trigger_wrapper.h"
 #include "usb_wrapper.h"
 #include "mcc_generated_files/spi2.h"
 
@@ -349,7 +350,29 @@ void DISP_enableDisplayThisCycle()
 {
     G_displayStart = true;
 }
+
 void DISP_preventDispThisCycle()
 {
     G_displayStart = false;
+}
+
+void DISP_handleDisplay()
+{
+    bool displayInhibit = TRIG_isSignalOn();
+    if (!displayInhibit)
+    {
+        if (DISP_getStart() && !DISP_isBusy())
+        {
+            DISP_writeFrame(true);
+            DISP_preventDispThisCycle();
+        }
+        else
+        {
+            DISP_writeFrame(true);
+        }
+    }
+    else
+    {
+        GPIO_set(GPIO_DISP_CS, 0);
+    }
 }

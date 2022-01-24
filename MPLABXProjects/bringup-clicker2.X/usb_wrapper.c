@@ -167,6 +167,7 @@ bool USB_readLine(char line[], uint16_t maxLen, bool echo)
             line[maxLen - 1] = '\0';
             linepos = 0;
             eoln = true;
+            USB_printfLine("OVERFLOW detectged. %d %d", linepos, maxLen);
             break;
         }
         else if (ch == '\b')

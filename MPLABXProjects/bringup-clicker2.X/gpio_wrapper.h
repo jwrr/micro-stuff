@@ -53,6 +53,7 @@ void GPIO_toggle(char port, uint8_t pos);
 void GPIO_toggle(char port, uint8_t pos);
 bool GPIO_get(char *pin);
 bool GPIO_edgeDetect(char *pin, bool *val, uint8_t whichEdge);
+void GPIO_handleButtons();
 
 #endif	/* GPIO_WRAPPER_H */
 

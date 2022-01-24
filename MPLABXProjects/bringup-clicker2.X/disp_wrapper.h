@@ -60,5 +60,8 @@ bool DISP_getStart(void);
 void DISP_enableDisplayThisCycle();
 void DISP_preventDispThisCycle();
 
+void DISP_handleDisplay();
+
+
 #endif	/* DISP_WRAPPER_H */
 

@@ -42,9 +42,11 @@
       <itemPath>adc_wrapper.h</itemPath>
       <itemPath>timer_wrapper.h</itemPath>
       <itemPath>trigger_wrapper.h</itemPath>
-      <itemPath>tc74_wrapper.h</itemPath>
-      <itemPath>helper_wrapper.h</itemPath>
       <itemPath>wave_wrapper.h</itemPath>
+      <itemPath>cmd_wrapper.h</itemPath>
+      <itemPath>misc_wrapper.h</itemPath>
+      <itemPath>help_wrapper.h</itemPath>
+      <itemPath>temp_wrapper.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -88,9 +90,11 @@
       <itemPath>adc_wrapper.c</itemPath>
       <itemPath>timer_wrapper.c</itemPath>
       <itemPath>trigger_wrapper.c</itemPath>
-      <itemPath>tc74_wrapper.c</itemPath>
-      <itemPath>helper_wrapper.c</itemPath>
       <itemPath>wave_wrapper.c</itemPath>
+      <itemPath>cmd_wrapper.c</itemPath>
+      <itemPath>misc_wrapper.c</itemPath>
+      <itemPath>help_wrapper.c</itemPath>
+      <itemPath>temp_wrapper.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

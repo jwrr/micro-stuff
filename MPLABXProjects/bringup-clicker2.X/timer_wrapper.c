@@ -10,8 +10,8 @@
 #include "mcc_generated_files/tmr3.h"
 
 
-static int16_t TIME_sampleCurr = 0; // *p_waveformSample;
-static int16_t TIME_samplePrev = 0; // FIXME use this in polling loop for interpolation
+static uint16_t TIME_sampleCurr = 0; // *p_waveformSample;
+static uint16_t TIME_samplePrev = 0; // FIXME use this in polling loop for interpolation
 
 static uint16_t TIME_cnt500usec = 0;
 static uint16_t TIME_cntSeconds = 0;
@@ -50,6 +50,8 @@ void TMR3_callBack(void)
             if (sample < 0) return;
         }
         TIME_pageOffset++;
+        TIME_samplePrev = TIME_sampleCurr;
+        TIME_sampleCurr = ((uint16_t)sample) & 0x0FFF;
         sample &= 0x0FFF; // clamp to 12-bits
         DAC_writeSPI(true, (uint16_t)TIME_sampleCurr);
     }

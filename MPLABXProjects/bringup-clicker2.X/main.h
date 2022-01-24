@@ -34,26 +34,6 @@ bool     G_waveLoadInProgress = false;
 bool     G_customLoaded     = false;
 bool     G_forceDisplayUpdate = false;
 uint32_t G_spinTime         = 10000;
- 
-
-char G_help[][60] = {
-    "Help Menu",
-    "-------------------------------------------",
-    "left     (a) - Emulate left button",
-    "select   (s) - Emulate select button",
-    "right    (d) - Emulate right button",
-    "trigger  (f) - Emulate trigger",
-    "-------------------------------------------",
-    "clear    (c) - Clear current custom waveform table",
-    "eng      (e) - Toggle engineering mode",
-    "graphics (g) - Toggle between graphics/text display",
-    "help     (h) - Display this help message",
-    "load     (l) - Load wave table",
-    "refresh  (r) - Refresh screen",
-    "view     (v) - View current waveform table",
-    ""
-};
-
 
 #endif	/* MAIN_H */
 
