@@ -11,8 +11,8 @@
 #include "mcc_generated_files/spi2.h"
 
 
-const char *G_modeNames0[] = {"AAAA", "BBBB", "CCCC", ""};
-const char *G_modeNames1[] = {"DDDD", "EEEE", "FFFF", ""};
+const char *G_modeNames0[] = {"CMWS", "LIMWS", "XMWS", ""};
+const char *G_modeNames1[] = {"ROCKET", "MISSILE", "GUN", ""};
 
 uint8_t  G_mode[2]      = {0, 0};
 uint8_t  G_modeSize[2]  = {3, 3};
@@ -26,9 +26,9 @@ char G_txtScreen[][20] = {
     "                  ", // 3
     "    SIGNAL OFF    ", // 4
     "                  ", // 5
-    "<      AAAA      >", // 6
+    "<      CMWS      >", // 6
     "                  ", // 7
-    "       DDDD       ", // 8
+    "      ROCKET      ", // 8
     "                  ", // 9
     "  P/N: PN123-01   ", // 10
     "  F/W: FW123-01   ", // 11

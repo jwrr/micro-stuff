@@ -41,6 +41,9 @@
 #include <stdbool.h>
 
 #define GPIO_DAC_CS 'E',4
+#define GPIO_DAC1_CS 'R',8
+#define GPIO_DAC2_CS 'R',9
+
 #define GPIO_DISP_CS 'G',8
 
 

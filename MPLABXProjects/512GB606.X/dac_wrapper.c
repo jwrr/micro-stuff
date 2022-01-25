@@ -2,29 +2,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "gpio_wrapper.h"
+#include "disp_wrapper.h"
 #include "mcc_generated_files/spi2.h"
 
 // ===============================================================
 // DAC TI 121S101 12-bit SPI DAC
 
-bool DAC_write(bool start, uint16_t value)
-{
-    uint16_t rdata;
-    uint16_t i = 0;
-//    toggleOutputBit(DAC_CS);
-    if (start)
-    {
-        while (SPI2STATLbits.SPITBF == true);
-        GPIO_set(GPIO_DAC_CS, 1);
-        for (i = 0; i < 10; i++);
-        GPIO_set(GPIO_DAC_CS, 0);
-        for (i = 0; i < 10; i++);
-        SPI2BUFL = value;
-        while (SPI2STATLbits.SPIRBE == true);
-        rdata = SPI2BUFL; // sets SPIRBE
-    }
-    return false;
-}
+//bool DAC_write(bool start, uint16_t value)
+//{
+//    uint16_t rdata;
+//    uint16_t i = 0;
+////    toggleOutputBit(DAC_CS);
+//    if (start)
+//    {
+//        while (SPI2STATLbits.SPITBF == true);
+//        GPIO_set(GPIO_DAC_CS, 1);
+//        for (i = 0; i < 10; i++);
+//        GPIO_set(GPIO_DAC_CS, 0);
+//        for (i = 0; i < 10; i++);
+//        SPI2BUFL = value;
+//        while (SPI2STATLbits.SPIRBE == true);
+//        rdata = SPI2BUFL; // sets SPIRBE
+//    }
+//    return false;
+//}
 
 
 void DAC_SPI2_initialize(void)
@@ -64,10 +65,23 @@ void DAC_writeSPI(bool start, uint16_t value)
         while (SPI2STATLbits.SPITBF == true);
         DAC_SPI2_initialize(); // Mode 0, 16-Bit
 
-        GPIO_set(GPIO_DAC_CS, 1);
-        for (i = 0; i < 10; i++);
-        GPIO_set(GPIO_DAC_CS, 0);
-        for (i = 0; i < 10; i++);
+        uint8_t mode = DISP_getModeIndex();
+        const uint8_t dacSel = (mode < 3) ? 1 : 2;
+
+        if (dacSel == 1)
+        {
+            GPIO_set(GPIO_DAC1_CS, 1);
+            for (i = 0; i < 10; i++);
+            GPIO_set(GPIO_DAC1_CS, 0);
+            for (i = 0; i < 10; i++);
+        }
+        else
+        {
+             GPIO_set(GPIO_DAC2_CS, 1);
+            for (i = 0; i < 10; i++);
+            GPIO_set(GPIO_DAC2_CS, 0);
+            for (i = 0; i < 10; i++);           
+        }
 
         SPI2BUFL = value;
         uint16_t cnt = 0;

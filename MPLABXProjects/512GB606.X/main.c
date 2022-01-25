@@ -23,7 +23,7 @@
 #include "font_wrapper.h"
 #include "flash_wrapper.h"
 #include "dac_wrapper.h"
-#include "adc_wrapper.h"
+#include "batt_wrapper.h"
 #include "trigger_wrapper.h"
 #include "misc_wrapper.h"
 #include "timer_wrapper.h"
@@ -46,7 +46,7 @@ int main(void)
         GPIO_handleButtons();
         CMD_handleUSB();
         TEMP_handleTemperature(pollingLoopCnt);
-        ADC_handleBatteryVoltage(pollingLoopCnt);
+        BATT_handleBatteryVoltage(pollingLoopCnt);
         DISP_handleDisplay();
         USB_flushPrintBuffer();
 
