@@ -1,0 +1,673 @@
+{
+  "deviceName": "PIC24FJ1024GB610",
+  "communicationProtocol": {
+    "name": "UART5"
+  },
+  "memoryPartition": 0,
+  "applicationResetAddress": 32768,
+  "maxPayloadSize": 256,
+  "version": "1.5",
+  "bootloaderEndAddressExclusive": 32768,
+  "applicationStartAddress": 32768,
+  "applicationEndAddress": 702462,
+  "userIvtTableAddress": 33280,
+  "interrupts": [
+    {
+      "name": "OscillatorFail",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "AddressError",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "NVMError",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "StackError",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "MathError",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "ReservedTrap5",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "GeneralError",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "ReservedTrap7",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "INT0Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IC1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "OC1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "T1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA0Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IC2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "OC2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "T2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "T3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI1TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U1RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U1TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "ADC1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "NVMInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SI2C1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "MI2C1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CompInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IOCInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "INT1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt21",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "CCP5Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCP6Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "OC3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "OC4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "T4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "T5Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "INT2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U2RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U2TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI2TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt34",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt35",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "DMA3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IC3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IC4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IC5Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "IC6Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "OC5Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "OC6Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCT3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCT4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "PMPInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCT5Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCT6Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SI2C2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "MI2C2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCT7Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt52",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "INT3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "INT4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt55",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt56",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt57",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "SPI1RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI2RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI3RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA5Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "RTCCInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCP1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCP2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U1ErrInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U2ErrInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CRCInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA6Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "DMA7Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SI2C3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "MI2C3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "LVDInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCP7Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt74",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt75",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt76",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "CTMUInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt78",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt79",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt80",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "U3ErrInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U3RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U3TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "I2C1BCInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "I2C2BCInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "USB1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U4ErrInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U4RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U4TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "SPI3TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt92",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt93",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "CCP3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCP4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CLC1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CLC2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CLC3Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CLC4Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt100",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "CCT1Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "CCT2Interrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt103",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt104",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt105",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "FSTInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "Interrupt107",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "Interrupt108",
+      "mappingOption": "REMAP_TO_APPLICATION_DEFAULT"
+    },
+    {
+      "name": "I2C3BCInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "RTCCTSInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U5RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U5TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U5ErrInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U6RXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U6TXInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "U6ErrInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    },
+    {
+      "name": "JTAGInterrupt",
+      "mappingOption": "KEEP_IN_BOOTLOADER"
+    }
+  ],
+  "disabledCommands": [],
+  "configurationBitSettings": [
+    {
+      "key": "PLLMODE",
+      "value": "PLL96DIV2"
+    },
+    {
+      "key": "POSCMD",
+      "value": "NONE"
+    },
+    {
+      "key": "CWRP",
+      "value": "OFF"
+    },
+    {
+      "key": "ALTCMPI",
+      "value": "DISABLE"
+    },
+    {
+      "key": "SOSCHP",
+      "value": "ON"
+    },
+    {
+      "key": "SOSCSEL",
+      "value": "OFF"
+    },
+    {
+      "key": "ICS",
+      "value": "PGD1"
+    },
+    {
+      "key": "BOREN",
+      "value": "ON"
+    },
+    {
+      "key": "JTAGEN",
+      "value": "OFF"
+    },
+    {
+      "key": "PLLSS",
+      "value": "PLL_FRC"
+    },
+    {
+      "key": "ALTVREF",
+      "value": "ALTREFEN"
+    },
+    {
+      "key": "BWRP",
+      "value": "OFF"
+    },
+    {
+      "key": "BTSWP",
+      "value": "OFF"
+    },
+    {
+      "key": "CSS",
+      "value": "DISABLED"
+    },
+    {
+      "key": "FCKSM",
+      "value": "CSECMD"
+    },
+    {
+      "key": "FWDTEN",
+      "value": "OFF"
+    },
+    {
+      "key": "WDTWIN",
+      "value": "WIN25"
+    },
+    {
+      "key": "WDTCMX",
+      "value": "WDTCLK"
+    },
+    {
+      "key": "FWPSA",
+      "value": "PR128"
+    },
+    {
+      "key": "GSS",
+      "value": "DISABLED"
+    },
+    {
+      "key": "BSEN",
+      "value": "OFF"
+    },
+    {
+      "key": "BSLIM",
+      "value": "8191"
+    },
+    {
+      "key": "AIVTDIS",
+      "value": "OFF"
+    },
+    {
+      "key": "WINDIS",
+      "value": "OFF"
+    },
+    {
+      "key": "TMPRPIN",
+      "value": "OFF"
+    },
+    {
+      "key": "LPCFG",
+      "value": "OFF"
+    },
+    {
+      "key": "OSCIOFCN",
+      "value": "OFF"
+    },
+    {
+      "key": "BTMODE",
+      "value": "SINGLE"
+    },
+    {
+      "key": "GWRP",
+      "value": "OFF"
+    },
+    {
+      "key": "BSS",
+      "value": "DISABLED"
+    },
+    {
+      "key": "IOL1WAY",
+      "value": "ON"
+    },
+    {
+      "key": "WDTCLK",
+      "value": "LPRC"
+    },
+    {
+      "key": "WDTPS",
+      "value": "PS32768"
+    },
+    {
+      "key": "FNOSC",
+      "value": "FRCPLL"
+    },
+    {
+      "key": "DNVPEN",
+      "value": "ENABLE"
+    },
+    {
+      "key": "IESO",
+      "value": "OFF"
+    }
+  ],
+  "verification": "Not Blank",
+  "bootloaderFoscValue": 16000000,
+  "isCodeProtectEnabled": false,
+  "isAntiRollBackEnabled": false,
+  "downloadStartAddress": 32768,
+  "downloadEndAddress": 702462
+}
