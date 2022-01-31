@@ -113,5 +113,5 @@ static bool EnterBootloadMode(void)
     /* NOTE: This might be a a push button status on power up, a command from a peripheral, 
      * or whatever is specific to your boot loader implementation */    
 
-    return false;
+    return;
 }

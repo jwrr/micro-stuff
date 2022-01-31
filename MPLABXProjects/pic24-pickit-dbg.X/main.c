@@ -1,17 +1,11 @@
 /* 
  * File:   main.c
- * Author: robin
- *
- * Created on January 26, 2022, 10:46 PM
  */
 
 #include <stdio.h>
 #include <stdlib.h>
-#pragma config ICS = PGD2               // ICD Communication Channel Select bits (Communicate on PGEC2 and PGED2)
+#pragma config ICS = PGD2   // **** THIS IS THAT MAGIC LINE THAT WORKED FOR ME.
 
-/*
- * 
- */
 int main(int argc, char** argv)
 {
 

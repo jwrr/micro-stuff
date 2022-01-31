@@ -39,6 +39,7 @@
         <itemPath>mcc_generated_files/uart5.h</itemPath>
       </logicalFolder>
       <itemPath>ring.h</itemPath>
+      <itemPath>usblib.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -83,6 +84,7 @@
       </logicalFolder>
       <itemPath>main.c</itemPath>
       <itemPath>ring.c</itemPath>
+      <itemPath>usblib.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

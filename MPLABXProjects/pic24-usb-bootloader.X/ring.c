@@ -108,21 +108,24 @@ uint8_t RING_readOne(ring_t *ring)
     return val;
 }
 
-uint8_t RING_read(ring_t *ring, uint8_t *data, uint16_t size)
+static uint16_t min(uint16_t a, uint16_t b)
 {
-    uint16_t len = RING_getLen(ring);
-    if (len > size)
-    {
-        len = size;
-    }
+    return (a < b) ? a : b;
+}
+
+uint16_t RING_read(ring_t *ring, uint8_t *data, uint16_t maxReadLen)
+{
+    if (ring == NULL) return 0;
+    if (data == NULL) return 0;
+    uint16_t ringLen = RING_getLen(ring);
+    if (ringLen == 0) return 0;
+    uint16_t readLen = min(ringLen, maxReadLen);
     uint16_t i = 0;
-    uint8_t val = 0;
-    for (; i < len; i++)
+    for (; i < readLen; i++)
     {
-        RING_pop(ring, &val);
-        data[i] = val;
+        RING_pop(ring, &(data[i]));
     }
-    return len;
+    return readLen;
 }
 
 bool RING_peek(ring_t *ring, uint16_t offset, uint8_t *valptr)
