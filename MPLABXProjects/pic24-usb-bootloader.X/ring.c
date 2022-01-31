@@ -174,3 +174,15 @@ void RING_free(ring_t *ring)
     free(ring);
 }
 
+int16_t RING_search(ring_t *ring, uint8_t val)
+{
+    uint8_t ringVal = 0;
+    uint16_t i = 0;
+    for (; RING_peek(ring, i, &ringVal); i++)
+    {
+        if (ringVal == val) return i;
+    }
+    return -1;
+}
+
+

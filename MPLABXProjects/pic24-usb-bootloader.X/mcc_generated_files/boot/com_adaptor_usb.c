@@ -55,14 +55,11 @@ Copyright (c) [2012-2022] Microchip Technology Inc.
 #include <string.h>
 #include "com_adaptor.h"
 #include "boot_config.h"
-#include "../uart5.h"
-#include "../../ring.h"
+// #include "../uart5.h"
+#include "../../usblib.h"
 
 #define INVALID_PEEK_REQUEST_DATA 0x42
 
-
-extern ring_t *USB_tx;
-extern ring_t *USB_rx;
 
 struct COM_DATA_STRUCT {
     uint8_t pendingCommand[BOOT_CONFIG_MAX_PACKET_SIZE];
@@ -99,7 +96,7 @@ uint16_t BOOT_COM_Read(uint8_t* data, uint16_t length)
 // FIXME
 bool BOOT_COM_Write(uint8_t* data, uint16_t length)
 {
-    bool success = RING_write(USB_tx, data, length);
+    bool success = USB_write(data, length);
     return success;
 };
 
@@ -119,9 +116,12 @@ uint16_t BOOT_COM_GetBytesReady()
         initilized = true;
     }
 //    while ( UART5_IsRxReady() && (uartComData.pendingCommandLength < BOOT_CONFIG_MAX_PACKET_SIZE) )
-    while ( RING_hasData(USB_rx) && (COM_comData.pendingCommandLength < BOOT_CONFIG_MAX_PACKET_SIZE) )
+    while (COM_comData.pendingCommandLength < BOOT_CONFIG_MAX_PACKET_SIZE)
     {
-        COM_comData.pendingCommand[COM_comData.pendingCommandLength++]= RING_readOne(USB_rx);
+        uint8_t ch;
+        uint16_t len = USB_read(&ch, 1);
+        if (len == 0) break;
+        COM_comData.pendingCommand[COM_comData.pendingCommandLength++]= ch;
     }
 
     return COM_comData.pendingCommandLength;

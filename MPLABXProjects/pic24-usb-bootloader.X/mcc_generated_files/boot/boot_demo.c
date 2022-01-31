@@ -83,21 +83,25 @@ void BOOT_DEMO_Tasks(void)
         if( EnterBootloadMode() == true )
         {
             inBootloadMode = true;
+            USB_printLine("inBootloadMode");
         }
         else
         {
             if( executionImageRequiresValidation == true )
             {
                 executionImageValid = BOOT_ImageVerify(EXECUTION_IMAGE);
+                USB_printLine("executionImageRequiresValidation");
             }
 
             if(executionImageValid == false)
             {
                 inBootloadMode = true;
+                USB_printLine("executionImageValid");
             }
 
             if(inBootloadMode == false)
             {
+                USB_printLine("inBootloadMode = false");
                 BOOT_StartApplication();
             }
         }

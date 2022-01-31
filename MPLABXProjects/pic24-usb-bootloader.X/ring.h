@@ -39,6 +39,7 @@ uint16_t RING_read(ring_t *ring, uint8_t *data, uint16_t maxReadLen);
 bool RING_peek(ring_t *ring, uint16_t offset, uint8_t *valptr);
 ring_t *RING_new(uint16_t ringSize);
 void RING_free(ring_t *ring);
+int16_t RING_search(ring_t *ring, uint8_t val);
 
 #endif  /* RING_H */
 
