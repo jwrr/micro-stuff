@@ -709,10 +709,12 @@ void DAC_setCS(uint16_t hi, uint16_t lo)
 
 void DAC_writeSPI2(uint16_t dacVal)
 {
+    uint16_t csHigh = DAC_csHigh;
+    uint16_t csLow = DAC_csLow;
     NopSampleRate();
-    LATE = DAC_csHigh;
-    LATE = DAC_csLow;
+    LATE = csHigh;
     SPI2BUFL = dacVal;
+    LATE = csLow;
 //    while (SPI2STATLbits.SPIRBE);
 //    GPIO_clr(GPIO_DACCS);
     uint16_t unused = SPI2BUFL; // clears SPIRBE
