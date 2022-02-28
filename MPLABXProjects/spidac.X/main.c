@@ -696,10 +696,20 @@ uint16_t DAC_csLow;
 
 void DAC_writeSPI2(uint16_t dacVal)
 {
-    uint8_t cnt = 1;
-    while (cnt) cnt--;
-    cnt++;
-//    GPIO_set(GPIO_DACCS);
+//    uint8_t cnt = 1;
+//    while (cnt) cnt--;
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    Nop();
+    //    GPIO_set(GPIO_DACCS);
 //    GPIO_clr(GPIO_DACCS);
     SPI2BUFL = dacVal;
     LATE = DAC_csHigh;
